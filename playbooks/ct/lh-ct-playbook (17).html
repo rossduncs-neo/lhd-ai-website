@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Complexity Tax Playbook — light house</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --ink:         #18160f;
+  --ink-mid:     #2a2820;
+  --ink-soft:    #b8b4ac;
+  --stone-light: #9a9690;
+  --text-soft:   #5a5650;
+  --warm-white:  #f6f3ee;
+  --paper:       #edeae3;
+  --paper-deep:  #d5d0c8;
+  --teal:        #5db5a3;
+  --teal-light:  #e8f4f1;
+  --teal-mid:    #b8ddd8;
+  --gold:        #c8a96e;
+  --gold-light:  #f7f0e3;
+  --gold-mid:    #e2d0a8;
+  --red:         #b5453a;
+  --red-light:   #f7eae9;
+  --red-mid:     #e0b0ac;
+  --violet:      #6b5f94;
+  --violet-light:#f0eef7;
+  --violet-mid:  #c4bfe0;
+  --rule:        #d5d0c8;
+  --f-sans:      'Outfit', sans-serif;
+  --f-mono:      'DM Mono', monospace;
+  --radius:      4px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  background: var(--warm-white);
+  color: var(--ink);
+  font-family: var(--f-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ─── LAYOUT ──────────────────────────── */
+.shell { display: flex; min-height: 100vh; }
+
+/* ─── SIDEBAR ─────────────────────────── */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  padding: 28px 24px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-text {
+  font-family: var(--f-sans);
+  font-size: 14px;
+  letter-spacing: 0.13em;
+  color: rgba(255,255,255,0.85);
+  font-weight: 200;
+}
+.logo-text strong { font-weight: 700; color: #ffffff; }
+
+.sidebar-chapters { flex: 1; padding: 20px 0; }
+
+.chapter-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 11px 24px;
+  text-align: left;
+  transition: background 0.15s;
+  border-left: 3px solid transparent;
+}
+.chapter-btn:hover { background: rgba(255,255,255,0.05); }
+.chapter-btn.active {
+  background: rgba(255,255,255,0.07);
+  border-left-color: var(--gold);
+}
+
+.ch-num {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: rgba(255,255,255,0.22);
+  flex-shrink: 0;
+  width: 20px;
+}
+.chapter-btn.active .ch-num { color: var(--gold); }
+
+.ch-label {
+  font-family: var(--f-sans);
+  font-size: 12.5px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.38);
+  line-height: 1.3;
+}
+.chapter-btn.active .ch-label {
+  color: rgba(255,255,255,0.88);
+  font-weight: 500;
+}
+
+.sidebar-progress {
+  padding: 20px 24px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.progress-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 10px;
+}
+.progress-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.progress-text {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  color: rgba(255,255,255,0.2);
+  margin-top: 8px;
+  letter-spacing: 0.1em;
+}
+
+/* ─── MAIN ────────────────────────────── */
+.main { flex: 1; min-width: 0; }
+.page { display: none !important; min-height: 100vh; }
+.page.active { display: block !important; animation: fadeIn 0.25s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── CHAPTER HEADER ──────────────────── */
+.ch-header {
+  padding: 56px 64px 48px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+  overflow: hidden;
+}
+.ch-header::after {
+  content: attr(data-num);
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--f-sans);
+  font-size: 160px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.035);
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.ch-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+.ch-eyebrow::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--gold);
+}
+
+.ch-title {
+  font-family: var(--f-sans);
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 200;
+  line-height: 1.1;
+  color: var(--ink);
+  max-width: 100%;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+.ch-title strong {
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.ch-subtitle {
+  margin-top: 14px;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text-soft);
+  max-width: 560px;
+  line-height: 1.6;
+}
+
+.ch-meta {
+  position: absolute;
+  bottom: 24px;
+  right: 64px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--rule);
+  text-transform: uppercase;
+}
+
+/* ─── CONTENT ─────────────────────────── */
+.content { padding: 48px 64px 80px; }
+
+/* ─── COVER ───────────────────────────── */
+#page-cover { background: var(--ink); flex-direction: column; }
+#page-cover.active { display: flex !important; }
+
+.cover-body {
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 72px 64px 56px;
+  position: relative;
+}
+.cover-body::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(135deg, transparent 60%, rgba(200,169,110,0.05) 100%);
+  pointer-events: none;
+}
+
+.cover-tag {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cover-tag::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.cover-title {
+  font-family: var(--f-sans);
+  font-size: clamp(48px, 7vw, 80px);
+  font-weight: 200;
+  line-height: 1.0;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+}
+.cover-title em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--gold);
+  display: block;
+}
+
+.cover-subtitle {
+  font-family: var(--f-sans);
+  font-size: 16px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.55);
+  margin-top: 28px;
+  max-width: 480px;
+  line-height: 1.7;
+}
+
+.cover-stats {
+  display: flex;
+  gap: 48px;
+  margin-top: 64px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.c-stat-num {
+  font-family: var(--f-sans);
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+}
+.c-stat-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  margin-top: 6px;
+}
+
+.cover-start-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--gold);
+  color: var(--ink);
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 14px 28px;
+  border-radius: var(--radius);
+  margin-top: 40px;
+  transition: all 0.2s;
+}
+.cover-start-btn:hover { background: var(--warm-white); transform: translateY(-1px); }
+
+/* ─── SECTION DIVIDER ─────────────────── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 36px 0 24px;
+}
+.sd-label {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  flex-shrink: 0;
+}
+.sd-line { flex: 1; height: 1px; background: var(--rule); }
+
+/* ─── INTRO CARDS ─────────────────────── */
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.intro-card {
+  background: var(--paper);
+  border-radius: var(--radius);
+  padding: 36px;
+  border: 1px solid var(--rule);
+}
+.intro-card.dark {
+  background: var(--ink);
+  border-color: transparent;
+}
+
+.ic-label {
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 14px;
+}
+.ic-title {
+  font-family: var(--f-sans);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+.dark .ic-title { color: rgba(255,255,255,0.88); }
+.ic-body {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-soft);
+}
+.dark .ic-body { color: rgba(255,255,255,0.38); }
+.ic-body strong { color: var(--ink); font-weight: 600; }
+.dark .ic-body strong { color: rgba(255,255,255,0.75); }
+
+/* ─── BILL STATS ──────────────────────── */
+.bill-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1px;
+  background: var(--rule);
+  margin-bottom: 40px;
+}
+
+.bill-stat {
+  background: var(--warm-white);
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bill-stat-num {
+  font-family: var(--f-sans);
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+}
+.bill-stat-num span { color: var(--gold); }
+
+.bill-stat-label {
+  font-size: 13.5px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--text-soft);
+}
+
+.bill-stat-source {
+  font-family: var(--f-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+
+/* ─── BIAS CHAPTER CARDS ──────────────── */
+.bias-chapter-card {
+  background: var(--warm-white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+/* Bias row — top block */
+.bc-top {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr;
+  gap: 0;
+  min-height: 140px;
+}
+
+.bc-num-block {
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-mono);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
+.bc-bias {
+  padding: 28px 32px;
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.bc-bias-tag {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.bc-bias-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.bc-bias-desc {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--text-soft);
+  line-height: 1.65;
+}
+
+.bc-org {
+  padding: 28px 32px;
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.bc-org-tag {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.bc-org-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.bc-org-desc {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--text-soft);
+  line-height: 1.65;
+}
+
+/* Expandable sections */
+.bc-expand-btn {
+  width: 100%;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--rule);
+  cursor: pointer;
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--gold-light);
+  transition: all 0.15s;
+}
+.bc-expand-btn:hover { background: var(--gold-mid); }
+.bc-expand-btn svg { transition: transform 0.2s; }
+.bias-chapter-card.open .bc-expand-btn svg { transform: rotate(180deg); }
+
+.bc-detail {
+  display: none;
+  border-top: 1px solid var(--rule);
+}
+.bias-chapter-card.open .bc-detail { display: grid; grid-template-columns: 1fr 1fr 1fr; }
+
+.bc-col {
+  padding: 28px 32px;
+  border-right: 1px solid var(--rule);
+}
+.bc-col:last-child { border-right: none; }
+
+/* Company mirror col */
+.bc-col.company { background: var(--ink); }
+
+.bc-col-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin-bottom: 12px;
+}
+.bc-col.company .bc-col-label { color: rgba(255,255,255,0.25); }
+
+.bc-col-body {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--text-soft);
+}
+.bc-col.company .bc-col-body { color: rgba(255,255,255,0.5); }
+
+/* Diagnostic col */
+.bc-col.diagnostic { background: var(--teal-light); }
+.bc-col.diagnostic .bc-col-label { color: var(--teal); }
+.bc-col.diagnostic .bc-col-body { color: var(--ink); }
+
+.bc-col.diagnostic .diagnostic-q {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+  font-style: italic;
+  margin-bottom: 12px;
+}
+
+/* Antidote col */
+.bc-col.antidote { background: var(--gold-light); }
+.bc-col.antidote .bc-col-label { color: var(--gold); }
+
+.antidote-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+/* ─── COMPANY EXAMPLE ─────────────────── */
+.company-badge {
+  display: inline-block;
+  font-family: var(--f-sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.88);
+  background: rgba(255,255,255,0.07);
+  padding: 4px 10px;
+  border-radius: 3px;
+  margin-bottom: 10px;
+}
+
+/* ─── LESS PRESCRIPTION ───────────────── */
+.less-prescription {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.less-pill {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+.less-pill.l { background: rgba(93,181,163,0.15); color: var(--teal); border: 1px solid var(--teal-mid); }
+.less-pill.e { background: rgba(200,169,110,0.15); color: var(--gold); border: 1px solid var(--gold-mid); }
+.less-pill.s { background: rgba(107,95,148,0.15); color: var(--violet); border: 1px solid var(--violet-mid); }
+.less-pill.s2 { background: rgba(181,69,58,0.08); color: var(--red); border: 1px solid var(--red-mid); }
+
+/* ─── CHAPTER NAV ─────────────────────── */
+.ch-nav-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 64px 48px;
+  border-top: 1px solid var(--rule);
+  margin-top: 16px;
+}
+.ch-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  transition: all 0.15s;
+}
+.ch-nav-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-light); }
+.ch-nav-btn.next {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--warm-white);
+  margin-left: auto;
+}
+.ch-nav-btn.next:hover { background: var(--ink-mid); border-color: var(--ink-mid); }
+.ch-nav-spacer { flex: 1; }
+
+/* ─── AUDIT PAGE ──────────────────────── */
+.audit-hero {
+  background: var(--ink);
+  padding: 56px 64px;
+  margin-bottom: 1px;
+}
+.ah-tag {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.ah-title {
+  font-size: clamp(28px, 3.5vw, 44px);
+  font-weight: 200;
+  color: rgba(255,255,255,0.88);
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.ah-title strong { font-weight: 700; color: var(--gold); }
+.ah-body {
+  font-size: 15px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.75;
+  max-width: 560px;
+}
+
+.audit-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--rule);
+  margin-bottom: 1px;
+}
+
+.audit-q {
+  background: var(--warm-white);
+  padding: 32px 64px;
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.aq-num {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  padding-top: 4px;
+}
+
+.aq-text {
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.aq-context {
+  font-size: 13.5px;
+  font-weight: 300;
+  color: var(--text-soft);
+  line-height: 1.75;
+}
+
+.aq-scale {
+  display: flex;
+  gap: 6px;
+  margin-top: 20px;
+  align-items: center;
+}
+
+.aq-btn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  border-radius: var(--radius);
+  font-family: var(--f-mono);
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text-soft);
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.aq-btn:hover { border-color: var(--gold); color: var(--gold); }
+.aq-btn.selected { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: 700; }
+
+.aq-scale-label {
+  font-family: var(--f-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-top: 6px;
+}
+
+.audit-cta {
+  background: var(--ink);
+  padding: 56px 64px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+
+.acta-left {}
+.acta-tag {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 14px;
+}
+.acta-title {
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 200;
+  color: rgba(255,255,255,0.88);
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+.acta-title strong { font-weight: 700; color: var(--gold); }
+.acta-body {
+  font-size: 14px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.8;
+  margin-bottom: 28px;
+}
+
+.acta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--gold);
+  color: var(--ink);
+  font-family: var(--f-sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 14px 28px;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+}
+.acta-btn:hover { background: var(--warm-white); transform: translateY(-1px); }
+
+.acta-four-qs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.aq-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 18px;
+  background: rgba(255,255,255,0.04);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--gold);
+}
+
+.aq-item-num {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--gold);
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.aq-item-text {
+  font-size: 13.5px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.5;
+}
+
+/* ─── LESS TOOLKIT ────────────────────── */
+.less-header {
+  background: var(--ink);
+  padding: 48px 64px;
+  border-bottom: 1px solid #2a2820;
+}
+.lh-tag {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+.lh-title {
+  font-size: clamp(28px, 3.5vw, 44px);
+  font-weight: 200;
+  color: rgba(255,255,255,0.88);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.lh-title strong { font-weight: 700; color: var(--gold); }
+.lh-sub {
+  font-size: 14px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.75;
+  max-width: 540px;
+}
+
+.less-letters {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1px;
+  background: var(--rule);
+  margin-bottom: 1px;
+}
+
+.less-letter-cell {
+  background: var(--paper);
+  padding: 36px 32px;
+  position: relative;
+  overflow: hidden;
+  border-top: 3px solid var(--gold);
+}
+
+.llc-letter {
+  font-family: var(--f-sans);
+  font-weight: 700;
+  font-size: 72px;
+  color: var(--gold);
+  opacity: 0.12;
+  line-height: 1;
+  position: absolute;
+  top: 12px;
+  right: 16px;
+}
+
+.llc-word {
+  font-family: var(--f-sans);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.llc-body {
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--text-soft);
+}
+
+.less-interventions {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--rule);
+}
+
+.li-row {
+  background: var(--warm-white);
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr auto;
+  align-items: stretch;
+}
+
+.li-letter-block {
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-sans);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.li-bias {
+  padding: 24px 28px;
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+.li-bias-tag {
+  font-family: var(--f-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.li-bias-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.li-intervention {
+  padding: 24px 28px;
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  background: var(--gold-light);
+}
+
+.li-int-label {
+  font-family: var(--f-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.li-int-text {
+  font-size: 13.5px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.li-less-tag {
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+}
+
+/* ─── MOBILE NAV ──────────────────────── */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--ink);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  overflow-x: auto;
+  scrollbar-width: none;
+  z-index: 200;
+}
+.mobile-nav::-webkit-scrollbar { display: none; }
+.mobile-nav-inner { display: flex; padding: 0 12px; min-width: max-content; }
+.m-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+.m-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+@media (max-width: 860px) {
+  .sidebar { display: none; }
+  .mobile-nav { display: flex; }
+  .ch-header { padding: 40px 28px 32px; }
+  .content { padding: 32px 28px 100px; }
+  .bc-top { grid-template-columns: 1fr; }
+  .bc-num-block { min-height: 56px; }
+  .bc-detail { grid-template-columns: 1fr; }
+  .intro-grid { grid-template-columns: 1fr; }
+  .bill-grid { grid-template-columns: 1fr 1fr; }
+  .less-letters { grid-template-columns: 1fr 1fr; }
+  .audit-cta { grid-template-columns: 1fr; }
+  .ch-nav-footer { padding: 24px 28px 40px; }
+  .li-row { grid-template-columns: 48px 1fr; }
+  .li-intervention { display: none; }
+  .li-less-tag { display: none; }
+}
+
+
+/* ─── COVER LESS BOXES ────────────────── */
+.less-box {
+  width: 64px;
+  height: 64px;
+  border: 1px solid rgba(200,169,110,0.3);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-mono);
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: rgba(200,169,110,0.35);
+  cursor: default;
+  transition: all 0.25s ease;
+  position: relative;
+  flex-direction: column;
+  gap: 0;
+}
+.less-box:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(200,169,110,0.08);
+}
+.less-box .lb-word {
+  font-family: var(--f-mono);
+  font-size: 8px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: none;
+  margin-top: 4px;
+}
+.less-box .lb-letter {
+  font-family: var(--f-mono);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+}
+.less-box:hover .lb-letter { display: none; }
+.less-box:hover .lb-word { display: block; }
+
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="18" height="22" viewBox="0 0 70 90" fill="none">
+        <rect x="0" y="0" width="7" height="90" fill="#ffffff"/>
+        <rect x="22" y="0" width="48" height="90" fill="#ffffff"/>
+      </svg>
+      <div class="logo-text"><span>light </span><strong>house</strong></div>
+    </div>
+    <nav class="sidebar-chapters">
+      <button class="chapter-btn active" onclick="showPage('cover')">
+        <span class="ch-num">—</span><span class="ch-label">Cover</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('preface')">
+        <span class="ch-num">00</span><span class="ch-label">Preface</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('bill')">
+        <span class="ch-num">01</span><span class="ch-label">The Bill</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('ch02')">
+        <span class="ch-num">02</span><span class="ch-label">The Preservation Problem</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('ch03')">
+        <span class="ch-num">03</span><span class="ch-label">Strategic Paralysis</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('ch04')">
+        <span class="ch-num">04</span><span class="ch-label">Competitive Copying</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('ch05')">
+        <span class="ch-num">05</span><span class="ch-label">The Investment Trap</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('ch06')">
+        <span class="ch-num">06</span><span class="ch-label">The Quarter Horizon</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('ch07')">
+        <span class="ch-num">07</span><span class="ch-label">Priority Inflation</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('ch08')">
+        <span class="ch-num">08</span><span class="ch-label">The Legacy Anchor</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('audit')">
+        <span class="ch-num">09</span><span class="ch-label">Your Complexity Audit</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('toolkit')">
+        <span class="ch-num">10</span><span class="ch-label">The LESS Toolkit</span>
+      </button>
+    </nav>
+    <div class="sidebar-progress">
+      <div class="progress-label">Progress</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-text" id="progressText">0 / 11 chapters</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- ══════ COVER ══════ -->
+    <div id="page-cover" class="page active">
+      <div style="background:var(--ink);min-height:100vh;display:flex;flex-direction:column;">
+        <div class="cover-body">
+          <div class="cover-tag">A light house publication</div>
+          <div class="cover-title">
+            The Complexity Tax
+            <em>Playbook</em>
+          </div>
+          <div class="cover-subtitle">Seven organisational biases. The tax they levy. And the LESS interventions that reduce it.</div>
+          <button class="cover-start-btn" onclick="showPage('preface')">
+            Begin reading
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <!-- LESS interactive boxes -->
+          <div class="less-boxes" style="display:flex;gap:10px;margin-top:48px;">
+            <div class="less-box" data-word="Lighten"><span class="lb-letter">L</span><span class="lb-word">Lighten</span></div>
+            <div class="less-box" data-word="Eliminate"><span class="lb-letter">E</span><span class="lb-word">Eliminate</span></div>
+            <div class="less-box" data-word="Simplify"><span class="lb-letter">S</span><span class="lb-word">Simplify</span></div>
+            <div class="less-box" data-word="Sharpen"><span class="lb-letter">S</span><span class="lb-word">Sharpen</span></div>
+          </div>
+          <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.16em;color:rgba(255,255,255,0.25);margin-top:12px;line-height:1.8;">LESS — Lighten, Eliminate, Simplify, Sharpen.<br>The light house framework for organisational subtraction.</div>
+
+          <div class="cover-stats">
+            <div class="c-stat"><div class="c-stat-num">7</div><div class="c-stat-label">Organisational biases</div></div>
+            <div class="c-stat"><div class="c-stat-num">7</div><div class="c-stat-label">Company mirrors</div></div>
+            <div class="c-stat"><div class="c-stat-num">7</div><div class="c-stat-label">LESS interventions</div></div>
+            <div class="c-stat"><div class="c-stat-num">1</div><div class="c-stat-label">Tax to eliminate</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ CH 00 — THE BILL ══════ -->
+    <!-- ══════ 00 — PREFACE ══════ -->
+    <div id="page-preface" class="page">
+
+      <div class="ch-header" data-num="00">
+        <div class="ch-eyebrow">Chapter 00</div>
+        <div class="ch-title">The <strong>Preface</strong></div>
+        <div class="ch-subtitle">Complexity has a hidden tax.</div>
+        <div class="ch-meta">00</div>
+      </div>
+
+      <div style="background:var(--warm-white);padding:56px 64px;border-bottom:1px solid var(--rule);">
+        <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;">The Complexity Tax</div>
+        <div style="font-size:clamp(24px,3vw,36px);font-weight:200;color:var(--ink);line-height:1.2;margin-bottom:20px;">If nobody sees it — <strong style="font-weight:700;color:var(--gold);">nobody reviews it.</strong></div>
+        <p style="font-size:15px;font-weight:300;color:var(--text-soft);line-height:1.85;margin-bottom:16px;">It isn't line-itemed in a budget review. No auditor flags it. No consultant has ever been hired to find it — because finding it would require admitting it's there. It compounds quietly. In slowed decisions. In duplicated effort. In meetings that exist to manage the output of other meetings.</p>
+        <p style="font-size:15px;font-weight:300;color:var(--text-soft);line-height:1.85;">Nobody builds complexity on purpose. It arrives one sensible decision at a time. Then one day the layers are the work.</p>
+      </div>
+
+      <div style="background:var(--ink);padding:64px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0;">
+        <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;">This playbook has two readers</div>
+        <div style="font-size:clamp(20px,2.5vw,28px);font-weight:200;color:rgba(255,255,255,0.88);line-height:1.5;white-space:nowrap;">The one who wants to fix the organisation. And the one who quietly suspects they might be part of what needs fixing.</div>
+        <div style="font-size:clamp(20px,2.5vw,28px);font-weight:700;color:var(--gold);line-height:1.5;margin-top:8px;">Both are welcome here.</div>
+      </div>
+
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('cover')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Cover
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('bill')">
+          The Bill<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════ 01 — THE BILL ══════ -->
+    <div id="page-bill" class="page">
+      <div class="ch-header" data-num="01">
+        <div class="ch-eyebrow">Chapter 01</div>
+        <div class="ch-title">The tax nobody sends <strong>a bill for</strong></div>
+        <div class="ch-subtitle">Every organisation pays it. Almost none of them know it exists.</div>
+        <div class="ch-meta">The Bill</div>
+      </div>
+      <div class="content">
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border-radius:var(--radius);overflow:hidden;margin-bottom:40px;">
+
+          <div style="background:var(--warm-white);padding:36px 32px;">
+            <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">Where it comes from</div>
+            <div style="font-size:16px;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:14px;">It is not the result of bad leadership.</div>
+            <p style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.8;">It is the entirely predictable consequence of human psychology operating inside organisational systems. Organisations are not rational entities. They are human beings at scale — and every bias that distorts individual decision-making distorts organisational decision-making too. With one critical difference.</p>
+            <p style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.8;margin-top:12px;">When an individual acts irrationally, the consequences are personal. When an organisation does, the behaviour gets a budget. A team. A job title. And eventually, a culture.</p>
+          </div>
+
+          <div style="background:var(--paper);padding:36px 32px;">
+            <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">The Mechanism</div>
+            <div style="font-size:16px;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:14px;">Biases become institutional — and invisible.</div>
+            <p style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.8;">When an organisation acts on the same bias repeatedly, it stops looking like a bias. It looks like process. It gets defended in quarterly reviews. It gets inherited by new hires who never question it because nobody told them there was anything to question.</p>
+            <p style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.8;margin-top:12px;">Good leaders don't design against this. Most don't even see it. The seven chapters that follow identify the seven biases that levy the tax — and what to do about each one.</p>
+          </div>
+
+          <div style="background:var(--red-light);padding:36px 32px;border-top:3px solid var(--red);">
+            <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--red);margin-bottom:14px;">Who Creates It</div>
+            <div style="font-size:16px;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:14px;">They meant well. They always do.</div>
+            <p style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.8;">There is always someone in the room who called the meeting to align on the meeting. Who added the approval step — just to be safe. Who kept the report nobody reads. Who said yes to the new tool without asking what it would replace.</p>
+            <p style="font-size:15px;font-weight:700;color:var(--ink);line-height:1.4;margin-top:16px;padding-top:16px;border-top:1px solid var(--red-mid);">This is The Accumulator.</p>
+            <p style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.8;margin-top:10px;">Not a villain. Not a bad leader. A person responding — entirely rationally — to an environment that rewards addition and makes subtraction invisible. In some organisations, The Accumulator is the culture.</p>
+          </div>
+
+        </div>
+
+        <div class="section-divider">
+          <span class="sd-label">What the bill actually looks like</span>
+          <div class="sd-line"></div>
+        </div>
+
+        <div class="bill-grid">
+          <div class="bill-stat">
+            <div class="bill-stat-num">57<span>%</span></div>
+            <div class="bill-stat-label">of the average employee's working time is now spent in communication — meetings, email, chat — rather than actual creation. Meetings have tripled since 2020. The coordination layer has grown faster than the work it coordinates.</div>
+            <div class="bill-stat-source">Microsoft Work Trend Index · 2024</div>
+          </div>
+          <div class="bill-stat" style="background:var(--paper);">
+            <div class="bill-stat-num">90<span>+</span></div>
+            <div class="bill-stat-label">marketing technology tools in the average enterprise. The majority of organisations cannot produce a full audit of what they are paying for, actively using, or have quietly abandoned.</div>
+            <div class="bill-stat-source">Brinker · chiefmartec.com, 2024</div>
+          </div>
+          <div class="bill-stat">
+            <div class="bill-stat-num">61<span>%</span></div>
+            <div class="bill-stat-label">of executives report that more than half the time they spent making decisions was ineffective — consumed by process, misalignment, and unclear accountability rather than actual judgement.</div>
+            <div class="bill-stat-source">McKinsey · Decision making, 2019</div>
+          </div>
+          <div class="bill-stat" style="background:var(--paper);">
+            <div class="bill-stat-num">∞</div>
+            <div class="bill-stat-label">The Complexity Tax has no upper limit. It compounds for as long as the organisation continues to add without removing. And unlike most taxes, this one is entirely optional.</div>
+            <div class="bill-stat-source">light house · The Complexity Tax</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="background:var(--ink);padding:64px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0;">
+        <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;">The seven chapters that follow</div>
+        <div style="font-size:clamp(20px,2.5vw,30px);font-weight:200;color:rgba(255,255,255,0.88);line-height:1.4;max-width:560px;">The seven biases that levy the tax — <strong style="font-weight:700;color:var(--gold);">and what to do about each one.</strong></div>
+      </div>
+
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('preface')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Preface
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('ch02')">
+          The Preservation Problem<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════ CH 01 — PRESERVATION PROBLEM ══════ -->
+    <div id="page-ch02" class="page">
+      <div class="ch-header" data-num="02">
+        <div class="ch-eyebrow">Chapter 02</div>
+        <div class="ch-title">The <strong>Preservation Problem</strong></div>
+        <div class="ch-subtitle">Organisational status quo bias — why nothing ever gets removed.</div>
+        <div class="ch-meta">Status quo bias</div>
+      </div>
+      <div class="content">
+
+        <div class="bias-chapter-card" id="card-02">
+          <div class="bc-top">
+            <div class="bc-num-block">02</div>
+            <div class="bc-bias">
+              <div class="bc-bias-tag">The individual bias</div>
+              <div class="bc-bias-name">Status Quo Bias</div>
+              <div class="bc-bias-desc">People have a strong, irrational preference for the current state of affairs — even when changing it would make them objectively better off. The default option wins not because it is the best option, but because it is already there.</div>
+            </div>
+            <div class="bc-org">
+              <div class="bc-org-tag">The organisational pattern</div>
+              <div class="bc-org-name">The museum of past decisions</div>
+              <div class="bc-org-desc">Processes get added — rarely removed. Tools get adopted — almost never retired. Meetings get scheduled — almost never cancelled. Every addition feels like progress. Every removal feels like risk. The result is an organisation carrying the full weight of every reasonable decision anyone has ever made inside it.</div>
+            </div>
+          </div>
+          <button class="bc-expand-btn" onclick="toggleChapter('card-02')">
+            <span>See the company mirror · diagnostic question · LESS intervention</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bc-detail">
+            <div class="bc-col company">
+              <div class="bc-col-label">The company in the mirror</div>
+              <div class="company-badge">General Electric</div>
+              <div class="bc-col-body">Under Jeff Immelt, GE added businesses, initiatives, and management layers throughout the 2000s and early 2010s. By 2017, the company had become so complex that analysts struggled to value it and leadership struggled to manage it. The additions had been celebrated. The cost was only visible in the subtraction — which took years and destroyed billions in market value.</div>
+            </div>
+            <div class="bc-col diagnostic">
+              <div class="bc-col-label">The diagnostic question</div>
+              <div class="diagnostic-q">"What would we stop doing tomorrow if we were building this function from scratch today?"</div>
+              <div class="bc-col-body">If you cannot answer this question quickly, the Preservation Problem is active. The processes you cannot name for removal are the ones doing the most damage.</div>
+            </div>
+            <div class="bc-col antidote">
+              <div class="bc-col-label">The LESS intervention</div>
+              <div class="bc-col-body" style="color:var(--ink);">Replace the optimisation list with a kill list. For every new process, tool, or initiative approved, one existing thing must be removed — not improved, not optimised, removed. Schedule a quarterly subtraction review with the same seniority as a budget review.</div>
+              <div class="less-prescription">
+                <span class="less-pill l">L — Lighten</span>
+                <span class="less-pill e">E — Eliminate</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--paper);border:1px solid var(--rule);border-radius:var(--radius);padding:32px 36px;margin-top:8px;">
+          <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">The structural cause</div>
+          <p style="font-size:14px;font-weight:300;line-height:1.8;color:var(--text-soft);max-width:680px;">This is not a character flaw. It is a <strong style="color:var(--ink);">structural consequence of how organisations measure and reward activity.</strong> Output metrics track what gets added. Almost nothing tracks what gets removed. Addition is rewarded. Subtraction is invisible at best, risky at worst. The organisation that removes as readily as it adds is fundamentally faster. The one that only adds is not growing. It is accumulating.</p>
+        </div>
+
+      </div>
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('bill')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>The Bill
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('ch03')">
+          Strategic Paralysis<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════ CH 02 — STRATEGIC PARALYSIS ══════ -->
+    <div id="page-ch03" class="page">
+      <div class="ch-header" data-num="03">
+        <div class="ch-eyebrow">Chapter 03</div>
+        <div class="ch-title"><strong>Strategic Paralysis</strong></div>
+        <div class="ch-subtitle">Organisational loss aversion — why the cost of inaction is never calculated.</div>
+        <div class="ch-meta">Loss aversion</div>
+      </div>
+      <div class="content">
+
+        <div class="bias-chapter-card" id="card-03">
+          <div class="bc-top">
+            <div class="bc-num-block">03</div>
+            <div class="bc-bias">
+              <div class="bc-bias-tag">The individual bias</div>
+              <div class="bc-bias-name">Loss Aversion</div>
+              <div class="bc-bias-desc">Losses loom roughly twice as large as equivalent gains in human psychology. We work harder to avoid losing than to win the same amount. Applied to organisational strategy, this asymmetry is consistently and expensively destructive.</div>
+            </div>
+            <div class="bc-org">
+              <div class="bc-org-tag">The organisational pattern</div>
+              <div class="bc-org-name">The inability to cannibalise</div>
+              <div class="bc-org-desc">Loss aversion manifests as the inability to cut, cannibalise, or fundamentally change anything that currently generates revenue — even when the strategic case is overwhelming. The existing business feels real, tangible, defensible. The new direction feels speculative. And so organisations protect what they have until the moment they can't.</div>
+            </div>
+          </div>
+          <button class="bc-expand-btn" onclick="toggleChapter('card-03')">
+            <span>See the company mirror · diagnostic question · LESS intervention</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bc-detail">
+            <div class="bc-col company">
+              <div class="bc-col-label">The company in the mirror</div>
+              <div class="company-badge">Kodak</div>
+              <div class="bc-col-body">Kodak invented the digital camera in 1975. The technology that would eventually destroy the company existed inside the company for decades. But film was generating enormous margins, and digital threatened those margins directly. Loss aversion won every meeting for twenty years. Kodak filed for bankruptcy in 2012. The loss they were trying to avoid became the loss they could not escape.</div>
+            </div>
+            <div class="bc-col diagnostic">
+              <div class="bc-col-label">The diagnostic question</div>
+              <div class="diagnostic-q">"What is the cost of not making this change, compounded over three years?"</div>
+              <div class="bc-col-body">Most organisations only calculate one number: what the change costs. Loss aversion is neutralised when you make the cost of inaction equally visible. Both are real numbers. Make both appear on the same page.</div>
+            </div>
+            <div class="bc-col antidote">
+              <div class="bc-col-label">The LESS intervention</div>
+              <div class="bc-col-body" style="color:var(--ink);">Reframe the strategic question entirely. Stop asking "what does this cost us?" Start asking "what is the cost of not doing this?" Make inaction as expensive on paper as it is in reality. The number that isn't calculated is always the one that matters most.</div>
+              <div class="less-prescription">
+                <span class="less-pill s">S — Sharpen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--red-light);border:1px solid var(--red-mid);border-radius:var(--radius);padding:32px 36px;margin-top:8px;">
+          <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--red);margin-bottom:12px;">The warning sign</div>
+          <p style="font-size:14px;font-weight:300;line-height:1.8;color:var(--text-soft);max-width:680px;">When the language of strategy becomes the language of defence — "protecting," "preserving," "maintaining" — loss aversion is in the room. This is not timidity. It is loss aversion operating at board level, <strong style="color:var(--ink);">dressed in the language of prudence and fiduciary responsibility.</strong> The framing feels responsible. The outcome rarely is.</p>
+        </div>
+
+      </div>
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('ch02')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Preservation Problem
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('ch04')">
+          Competitive Copying<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════ CH 03 — COMPETITIVE COPYING ══════ -->
+    <div id="page-ch04" class="page">
+      <div class="ch-header" data-num="04">
+        <div class="ch-eyebrow">Chapter 04</div>
+        <div class="ch-title"><strong>Competitive Copying</strong></div>
+        <div class="ch-subtitle">Organisational social proof — when strategy becomes a queue.</div>
+        <div class="ch-meta">Social proof</div>
+      </div>
+      <div class="content">
+
+        <div class="bias-chapter-card" id="card-04">
+          <div class="bc-top">
+            <div class="bc-num-block">04</div>
+            <div class="bc-bias">
+              <div class="bc-bias-tag">The individual bias</div>
+              <div class="bc-bias-name">Social Proof</div>
+              <div class="bc-bias-desc">When uncertain, we look to what others are doing and treat it as evidence of what we should do. It is a useful shortcut in genuinely uncertain situations. In organisational strategy, it is a substitute for thinking.</div>
+            </div>
+            <div class="bc-org">
+              <div class="bc-org-tag">The organisational pattern</div>
+              <div class="bc-org-name">Strategy as a queue</div>
+              <div class="bc-org-desc">Competitive copying is social proof industrialised. An organisation sees a competitor launch an initiative, restructure a function, or adopt a tool. The rational response would be to evaluate whether it makes sense for them. The actual response is to replicate it — because replication feels safe, and originality feels exposed. The result is a market where everyone does the same things, pursuing the same metrics, making genuine differentiation almost impossible.</div>
+            </div>
+          </div>
+          <button class="bc-expand-btn" onclick="toggleChapter('card-04')">
+            <span>See the company mirror · diagnostic question · LESS intervention</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bc-detail">
+            <div class="bc-col company">
+              <div class="bc-col-label">The company in the mirror</div>
+              <div class="company-badge">Twitter / X</div>
+              <div class="bc-col-body">Between 2020 and 2022, Twitter launched Stories (Fleets), Spaces, newsletters, Super Follows, Communities, and a subscription tier — each in direct response to a competitor. None became defining products. Meanwhile, the core timeline — Twitter's actual differentiator — deteriorated. Competitive copying produced a product without a clear identity, serving nobody particularly well.</div>
+            </div>
+            <div class="bc-col diagnostic">
+              <div class="bc-col-label">The diagnostic question</div>
+              <div class="diagnostic-q">"Are we doing this because it is right for us, or because others are doing it?"</div>
+              <div class="bc-col-body">These are not the same question. Conflating them is precisely how competitive copying masquerades as competitive strategy. If the honest answer is "because others are doing it" — that is not a strategy. That is a queue.</div>
+            </div>
+            <div class="bc-col antidote">
+              <div class="bc-col-label">The LESS intervention</div>
+              <div class="bc-col-body" style="color:var(--ink);">Before adopting any initiative, tool, or structural change, require an explicit written answer to the diagnostic question above. Make it a mandatory agenda item for any proposal that references a competitor. The organisations that ask it consistently make better decisions than those that don't.</div>
+              <div class="less-prescription">
+                <span class="less-pill e">E — Eliminate</span>
+                <span class="less-pill s">S — Simplify</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--paper);border:1px solid var(--rule);border-radius:var(--radius);padding:32px 36px;margin-top:8px;">
+          <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">The MarTech example</div>
+          <p style="font-size:14px;font-weight:300;line-height:1.8;color:var(--text-soft);max-width:680px;">The average enterprise marketing technology stack now exceeds 90 tools. The average CMO, asked to justify each one individually, cannot. They were adopted because others were adopting them. They remain because <strong style="color:var(--ink);">removal requires a justification that adoption never did.</strong> Competitive copying at industrial scale. The 9,304% growth in MarTech tools between 2011 and 2024 is not a technology story. It is a social proof story.</p>
+        </div>
+
+      </div>
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('ch03')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Strategic Paralysis
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('ch05')">
+          The Investment Trap<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════ CH 04 — INVESTMENT TRAP ══════ -->
+    <div id="page-ch05" class="page">
+      <div class="ch-header" data-num="05">
+        <div class="ch-eyebrow">Chapter 05</div>
+        <div class="ch-title">The <strong>Investment Trap</strong></div>
+        <div class="ch-subtitle">Organisational sunk cost bias — why failing projects keep getting funded.</div>
+        <div class="ch-meta">Sunk cost bias</div>
+      </div>
+      <div class="content">
+
+        <div class="bias-chapter-card" id="card-05">
+          <div class="bc-top">
+            <div class="bc-num-block">05</div>
+            <div class="bc-bias">
+              <div class="bc-bias-tag">The individual bias</div>
+              <div class="bc-bias-name">Sunk Cost Fallacy</div>
+              <div class="bc-bias-desc">We continue investing in failing endeavours because of what we have already spent, rather than evaluating the future on its own terms. Past investment is irrelevant to future value. Rationally, everyone knows this. Behaviourally, almost nobody acts on it.</div>
+            </div>
+            <div class="bc-org">
+              <div class="bc-org-tag">The organisational pattern</div>
+              <div class="bc-org-name">Three compounding sunk costs</div>
+              <div class="bc-org-desc">In organisations, sunk cost operates across three dimensions simultaneously. Financial: projects continue receiving funding because of what has already been invested. Reputational: initiatives championed by senior leaders cannot be killed without the champion admitting failure. Structural: entire functions built around a strategy that has since changed continue to exist because reorganising them is complicated.</div>
+            </div>
+          </div>
+          <button class="bc-expand-btn" onclick="toggleChapter('card-05')">
+            <span>See the company mirror · diagnostic question · LESS intervention</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bc-detail">
+            <div class="bc-col company">
+              <div class="bc-col-label">The company in the mirror</div>
+              <div class="company-badge">Quibi</div>
+              <div class="bc-col-body">Quibi raised $1.75 billion to launch a short-form mobile video platform in 2020. Within six months, the evidence that the product was not working was extensive and available to everyone involved. The platform shut down after seven months. The warning signs had been visible early. But $1.75 billion creates an almost irresistible pull toward continuation. The sunk cost owned the decision.</div>
+            </div>
+            <div class="bc-col diagnostic">
+              <div class="bc-col-label">The diagnostic question</div>
+              <div class="diagnostic-q">"Would we fund this today, knowing only what we know about the future?"</div>
+              <div class="bc-col-body">Not "given what we've spent, should we continue?" That question is contaminated by the past. The only strategically relevant question is the forward-looking one. Build it into every portfolio review. Make it required, not optional.</div>
+            </div>
+            <div class="bc-col antidote">
+              <div class="bc-col-label">The LESS intervention</div>
+              <div class="bc-col-body" style="color:var(--ink);">One question. Required. Non-negotiable: "Would we fund this today?" Build it into every portfolio review as a mandatory agenda item. The organisations that ask it consistently make better decisions than those that don't. The gap compounds. Separate the decision from the history.</div>
+              <div class="less-prescription">
+                <span class="less-pill e">E — Eliminate</span>
+                <span class="less-pill s">S — Sharpen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--paper);border:1px solid var(--rule);border-radius:var(--radius);padding:32px 36px;margin-top:8px;">
+          <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">The reputational trap</div>
+          <p style="font-size:14px;font-weight:300;line-height:1.8;color:var(--text-soft);max-width:680px;">The most dangerous form of organisational sunk cost is not financial. It is reputational. Initiatives personally championed by senior leaders are almost impossible to kill — because terminating them requires the champion to publicly acknowledge a failed judgement. <strong style="color:var(--ink);">The project continues not because it creates value, but because stopping it would create accountability.</strong> Design the review process to remove the person from the decision.</p>
+        </div>
+
+      </div>
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('ch04')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Competitive Copying
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('ch06')">
+          The Quarter Horizon<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════ CH 05 — QUARTER HORIZON ══════ -->
+    <div id="page-ch06" class="page">
+      <div class="ch-header" data-num="06">
+        <div class="ch-eyebrow">Chapter 06</div>
+        <div class="ch-title">The <strong>Quarter Horizon</strong></div>
+        <div class="ch-subtitle">Organisational present bias — why simplification never gets funded.</div>
+        <div class="ch-meta">Present bias</div>
+      </div>
+      <div class="content">
+
+        <div class="bias-chapter-card" id="card-06">
+          <div class="bc-top">
+            <div class="bc-num-block">06</div>
+            <div class="bc-bias">
+              <div class="bc-bias-tag">The individual bias</div>
+              <div class="bc-bias-name">Present Bias</div>
+              <div class="bc-bias-desc">We dramatically overweight immediate rewards compared to future ones. The future self is an abstract stranger. The current quarter is real, measurable, and what you will be evaluated on in approximately eleven weeks.</div>
+            </div>
+            <div class="bc-org">
+              <div class="bc-org-tag">The organisational pattern</div>
+              <div class="bc-org-name">The unfunded simplification programme</div>
+              <div class="bc-org-desc">Simplification programmes almost never get funded — because their benefits are diffuse, long-term, and hard to attribute to any single decision. The cost of complexity is invisible. The cost of the programme itself is immediate and specific. Brand investment is sacrificed to performance marketing. Technology infrastructure is chronically underfunded. The quarter horizon is not irresponsibility. It is the rational response to an incentive structure that measures short-term performance.</div>
+            </div>
+          </div>
+          <button class="bc-expand-btn" onclick="toggleChapter('card-06')">
+            <span>See the company mirror · diagnostic question · LESS intervention</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bc-detail">
+            <div class="bc-col company">
+              <div class="bc-col-label">The company in the mirror</div>
+              <div class="company-badge">WeWork</div>
+              <div class="bc-col-body">WeWork's relentless prioritisation of short-term growth metrics — locations opened, desks sold, headline revenue — over unit economics created a company that looked exceptional in the present and was structurally unsound in the future. Each quarter, in isolation, the metrics looked acceptable. The compound consequence of fifty consecutive acceptable quarters was a $47bn valuation that collapsed to near-zero within eighteen months.</div>
+            </div>
+            <div class="bc-col diagnostic">
+              <div class="bc-col-label">The diagnostic question</div>
+              <div class="diagnostic-q">"What are we deferring that will cost us more to fix in two years than it would to address now?"</div>
+              <div class="bc-col-body">The cost of deferral is real but invisible. Making it visible is the intervention. Calculate it. Put the number in the same meeting as the quarterly performance review.</div>
+            </div>
+            <div class="bc-col antidote">
+              <div class="bc-col-label">The LESS intervention</div>
+              <div class="bc-col-body" style="color:var(--ink);">Separate strategic investment from quarterly performance review — structurally, not just rhetorically. Ring-fence capital for investments whose returns will be realised over 18 months or more and protect it from short-term pressure. Make the cost of present bias visible: for any investment being deferred, calculate and present the compounding cost of deferral explicitly.</div>
+              <div class="less-prescription">
+                <span class="less-pill l">L — Lighten</span>
+                <span class="less-pill s">S — Sharpen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--paper);border:1px solid var(--rule);border-radius:var(--radius);padding:32px 36px;margin-top:8px;">
+          <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">The incentive structure problem</div>
+          <p style="font-size:14px;font-weight:300;line-height:1.8;color:var(--text-soft);max-width:680px;">Present bias in organisations is not a leadership character flaw. It is a <strong style="color:var(--ink);">rational response to an incentive structure that measures and rewards short-term performance.</strong> Which means it is, in most large organisations, the rational response to the incentive structures those organisations have built for themselves. You cannot cure present bias with exhortation. You cure it by redesigning the incentive.</p>
+        </div>
+
+      </div>
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('ch05')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Investment Trap
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('ch07')">
+          Priority Inflation<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════ CH 06 — PRIORITY INFLATION ══════ -->
+    <div id="page-ch07" class="page">
+      <div class="ch-header" data-num="07">
+        <div class="ch-eyebrow">Chapter 07</div>
+        <div class="ch-title"><strong>Priority Inflation</strong></div>
+        <div class="ch-subtitle">Organisational choice overload — when everything is important, nothing is.</div>
+        <div class="ch-meta">Choice overload</div>
+      </div>
+      <div class="content">
+
+        <div class="bias-chapter-card" id="card-07">
+          <div class="bc-top">
+            <div class="bc-num-block">07</div>
+            <div class="bc-bias">
+              <div class="bc-bias-tag">The individual bias</div>
+              <div class="bc-bias-name">Choice Overload</div>
+              <div class="bc-bias-desc">Beyond a certain threshold, every additional option reduces the quality of the eventual decision. More choice reliably leads to less action, lower satisfaction, and worse outcomes. The cognitive cost of evaluation overwhelms the benefit of range.</div>
+            </div>
+            <div class="bc-org">
+              <div class="bc-org-tag">The organisational pattern</div>
+              <div class="bc-org-name">The seventeen-priority strategy</div>
+              <div class="bc-org-desc">Priority inflation is what happens when organisations cannot say no. Every initiative sounds reasonable in isolation. Every stakeholder's request has merit. The result is a strategic plan with seventeen priorities — which is functionally a plan with no priorities. Attention, energy, and capital spread across the full surface area of the list. Nothing receives the concentration required to become genuinely excellent. Breakthroughs become structurally almost impossible.</div>
+            </div>
+          </div>
+          <button class="bc-expand-btn" onclick="toggleChapter('card-07')">
+            <span>See the company mirror · diagnostic question · LESS intervention</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bc-detail">
+            <div class="bc-col company">
+              <div class="bc-col-label">The company in the mirror</div>
+              <div class="company-badge">Yahoo</div>
+              <div class="bc-col-body">Yahoo's strategic history is a masterclass in priority inflation. At various points, Yahoo was simultaneously pursuing search, email, news, finance, sports, entertainment, social networking, mobile, and display advertising — each with genuine investment and genuine internal champions. The company was never short of priorities. It was chronically short of focus. Google did one thing with extraordinary depth. Yahoo had more priorities. Google had more progress.</div>
+            </div>
+            <div class="bc-col diagnostic">
+              <div class="bc-col-label">The diagnostic question</div>
+              <div class="diagnostic-q">"If we could only do three of these things, which three would they be?"</div>
+              <div class="bc-col-body">Not which three are most urgent. Which three, if we did them excellently, would matter most in three years? The answer to this question is your actual strategy. Everything else is list management.</div>
+            </div>
+            <div class="bc-col antidote">
+              <div class="bc-col-label">The LESS intervention</div>
+              <div class="bc-col-body" style="color:var(--ink);">No new priority without removing one. Not as a guideline — as a rule. Treat prioritisation as a subtractive discipline. A strategy with five genuine priorities — properly resourced and actively protected — will outperform a strategy with fifteen nominal ones every time. Less is not a compromise. It is the condition under which excellence becomes possible.</div>
+              <div class="less-prescription">
+                <span class="less-pill e">E — Eliminate</span>
+                <span class="less-pill s2">S — Simplify</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--paper);border:1px solid var(--rule);border-radius:var(--radius);padding:32px 36px;margin-top:8px;">
+          <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">Priority inflation in marketing</div>
+          <p style="font-size:14px;font-weight:300;line-height:1.8;color:var(--text-soft);max-width:680px;">Priority inflation is particularly acute in marketing functions, where the number of channels, formats, tools, audiences, and metrics available has expanded dramatically while underlying budget and team capacity has not. <strong style="color:var(--ink);">The CMO managing twelve channels, six agency relationships, forty-plus tools, and a hundred-line dashboard is not running a marketing function. They are administering one.</strong> The distinction matters.</p>
+        </div>
+
+      </div>
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('ch06')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Quarter Horizon
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('ch08')">
+          The Legacy Anchor<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════ CH 08 — LEGACY ANCHOR ══════ -->
+    <div id="page-ch08" class="page">
+      <div class="ch-header" data-num="08">
+        <div class="ch-eyebrow">Chapter 08</div>
+        <div class="ch-title">The <strong>Legacy Anchor</strong></div>
+        <div class="ch-subtitle">Organisational anchoring bias — when last year decides this year.</div>
+        <div class="ch-meta">Anchoring bias</div>
+      </div>
+      <div class="content">
+
+        <div class="bias-chapter-card" id="card-08">
+          <div class="bc-top">
+            <div class="bc-num-block">08</div>
+            <div class="bc-bias">
+              <div class="bc-bias-tag">The individual bias</div>
+              <div class="bc-bias-name">Anchoring Bias</div>
+              <div class="bc-bias-desc">The first number encountered in any estimation or negotiation exerts a disproportionate influence on all subsequent judgements — even when that number is demonstrably arbitrary. The anchor does not have to be relevant. It just has to be first.</div>
+            </div>
+            <div class="bc-org">
+              <div class="bc-org-tag">The organisational pattern</div>
+              <div class="bc-org-name">Last year as the starting point</div>
+              <div class="bc-org-desc">In organisations, the anchor is almost always last year. Last year's budget. Last year's headcount. Last year's structure. Last year's targets. Annual planning processes are, at their core, anchoring exercises — negotiations conducted from the reference point of what already exists, rather than from the question of what should exist. The legacy anchor feels responsible. It is, behaviourally, a failure to ask the right question.</div>
+            </div>
+          </div>
+          <button class="bc-expand-btn" onclick="toggleChapter('card-08')">
+            <span>See the company mirror · diagnostic question · LESS intervention</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="bc-detail">
+            <div class="bc-col company">
+              <div class="bc-col-label">The company in the mirror</div>
+              <div class="company-badge">McKinsey</div>
+              <div class="bc-col-body">McKinsey's identity as the definitive global strategy firm has become its own legacy anchor. As the market moved toward embedded, tech-native, outcome-accountable advisory, McKinsey's response has been incremental — new practice areas bolted onto an unchanged model. The anchor is the prestige of the existing brand. Every strategic conversation begins from what McKinsey has always been, not from what the market now requires.</div>
+            </div>
+            <div class="bc-col diagnostic">
+              <div class="bc-col-label">The diagnostic question</div>
+              <div class="diagnostic-q">"If we were building this from scratch today, knowing what we know, would we build this?"</div>
+              <div class="bc-col-body">This is the question that breaks the anchor. It is not zero-based budgeting applied to everything every year — that creates its own complexity. It is the deliberate, periodic refusal to let last year be the starting point for next year's thinking.</div>
+            </div>
+            <div class="bc-col antidote">
+              <div class="bc-col-label">The LESS intervention</div>
+              <div class="bc-col-body" style="color:var(--ink);">Every three years, require that significant budget allocations, team structures, and strategic priorities be justified from first principles — not from last year's position. If the honest answer to the diagnostic question is no, the legacy anchor has been deciding on your behalf. Make that visible. Then remove it.</div>
+              <div class="less-prescription">
+                <span class="less-pill l">L — Lighten</span>
+                <span class="less-pill e">E — Eliminate</span>
+                <span class="less-pill s">S — Sharpen</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Single paper box: bill presented + AI indented inside -->
+        <div style="background:var(--paper);border:1px solid var(--rule);border-radius:var(--radius);padding:40px 48px;margin-top:8px;margin-bottom:32px;">
+          <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">The bill, presented</div>
+          <p style="font-size:15px;font-weight:300;color:var(--text-soft);line-height:1.85;margin-bottom:24px;">Seven biases. One tax. None of them require bad leadership to operate. They require only what every organisation already has in abundance: humans, making decisions, under pressure, inside systems that were never designed to resist accumulation.</p>
+          <div style="margin-left:32px;padding:24px 28px;background:var(--red-light);border-left:4px solid var(--red);border-radius:var(--radius);">
+            <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--red);margin-bottom:10px;">A note on AI</div>
+            <p style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.8;">Humans are no longer making all the decisions. AI is being layered into these same systems. The biases that generate the Complexity Tax are not neutralised by new capability — in many cases they are accelerated by one. AI doesn't get its own chapter here. <strong style="color:var(--ink);">This is a deliberate choice. AI is the auditor. The bill was always there. Now it has a deadline.</strong></p>
+          </div>
+        </div>
+
+        <!-- Ink bleed -->
+        <div style="background:var(--ink);padding:64px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0;margin:0 -64px -80px -64px;">
+          <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;">The bill, presented</div>
+          <div style="font-size:clamp(18px,2.2vw,26px);font-weight:200;color:rgba(255,255,255,0.88);line-height:1.6;max-width:620px;">The Complexity Tax compounds invisibly — until one day the accumulated weight produces an organisation that cannot move at the speed its market demands.<br><br><strong style="font-weight:700;color:var(--gold);">The good news: unlike most taxes, this one is entirely optional.</strong></div>
+        </div>
+
+      </div>
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('ch07')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Priority Inflation
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('audit')">
+          Your Complexity Audit<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════ CH 09 — COMPLEXITY AUDIT ══════ -->
+    <div id="page-audit" class="page">
+      <div class="ch-header" data-num="09">
+        <div class="ch-eyebrow">Chapter 09</div>
+        <div class="ch-title">Your <strong>Complexity Audit</strong></div>
+        <div class="ch-subtitle">Four questions most organisations have never formally asked themselves.</div>
+        <div class="ch-meta">Self-assessment</div>
+      </div>
+
+      <div class="audit-hero">
+        <div class="ah-tag">A first look at your bill</div>
+        <div class="ah-title">Most organisations can answer <strong>question one.</strong><br>Almost none can answer question two.</div>
+        <div class="ah-body">The gap between what you have added in three years and what you have removed in three years is your Complexity Tax. These four questions make it visible. Be honest. The discomfort is the point.</div>
+      </div>
+
+      <div class="audit-questions">
+        <div class="audit-q">
+          <div class="aq-num">01</div>
+          <div>
+            <div class="aq-text">What have we added in the last three years?</div>
+            <div class="aq-context">Processes, tools, meetings, headcount, initiatives, agency relationships, reporting requirements, approval layers. List them. Most organisations can do this easily — the additions are visible and celebrated.</div>
+          </div>
+        </div>
+        <div class="audit-q" style="background:var(--paper);">
+          <div class="aq-num">02</div>
+          <div>
+            <div class="aq-text">What have we removed in the last three years?</div>
+            <div class="aq-context">Same categories. Processes stopped. Tools retired. Meetings cancelled permanently. Headcount genuinely reduced. Initiatives formally killed. If this list is significantly shorter than question one — and it almost certainly is — that gap is your Complexity Tax.</div>
+          </div>
+        </div>
+        <div class="audit-q">
+          <div class="aq-num">03</div>
+          <div>
+            <div class="aq-text">What are we continuing only because it already exists?</div>
+            <div class="aq-context">Not because it is working. Not because it is strategically important. Simply because it exists, has momentum, and stopping it would require a conversation nobody wants to have. This is the Preservation Problem in its purest form.</div>
+          </div>
+        </div>
+        <div class="audit-q" style="background:var(--paper);">
+          <div class="aq-num">04</div>
+          <div>
+            <div class="aq-text">What would we not start today, knowing what we now know?</div>
+            <div class="aq-context">The most important question. The things you would not start are the things that should stop. Not next year. Not after the next planning cycle. The answer to this question is your kill list. It is also your roadmap for reclaiming speed, focus, and resource.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="audit-cta">
+        <div class="acta-left">
+          <div class="acta-tag">The full diagnostic</div>
+          <div class="acta-title">Take the <strong>Clarity Score</strong></div>
+          <div class="acta-body">This is a preview. The full Clarity Score goes considerably deeper — across your marketing function's structure, tools, priorities, decision-making, and strategic clarity. It takes ten minutes. The results tend to start conversations that are long overdue.</div>
+          <a class="acta-btn" href="https://lhd.ai/clarity-score" target="_blank">
+            Take the Clarity Score →
+          </a>
+          <div style="margin-top:16px;font-family:var(--f-mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.2);">lhd.ai/clarity-score · 10 minutes</div>
+        </div>
+        <div class="acta-four-qs">
+          <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:12px;">The four questions behind the score</div>
+          <div class="aq-item">
+            <div class="aq-item-num">01</div>
+            <div class="aq-item-text">What have we added in the last three years?</div>
+          </div>
+          <div class="aq-item">
+            <div class="aq-item-num">02</div>
+            <div class="aq-item-text">What have we removed in the last three years?</div>
+          </div>
+          <div class="aq-item">
+            <div class="aq-item-num">03</div>
+            <div class="aq-item-text">What are we continuing only because it already exists?</div>
+          </div>
+          <div class="aq-item">
+            <div class="aq-item-num">04</div>
+            <div class="aq-item-text">What would we not start today, knowing what we now know?</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ch-nav-footer" style="padding:32px 64px 48px;">
+        <button class="ch-nav-btn" onclick="showPage('ch08')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Legacy Anchor
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('toolkit')">
+          The LESS Toolkit<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════ CH 10 — LESS TOOLKIT ══════ -->
+    <div id="page-toolkit" class="page">
+      <div class="ch-header" data-num="10">
+        <div class="ch-eyebrow">Chapter 10</div>
+        <div class="ch-title">The <strong>LESS Toolkit</strong></div>
+        <div class="ch-subtitle">Seven biases. Seven interventions. One direction.</div>
+        <div class="ch-meta">Interventions</div>
+      </div>
+
+      <div class="less-header">
+        <div class="lh-tag">The framework</div>
+        <div class="lh-title">LESS is not a philosophy of <strong>doing less.</strong></div>
+        <div class="lh-sub">It is the discipline of keeping systems light. Each intervention below maps directly to the bias that generates the tax — and identifies which LESS principle applies. Four letters. One direction. Always subtractive.</div>
+      </div>
+
+      <div class="less-letters">
+        <div class="less-letter-cell">
+          <div class="llc-letter">L</div>
+          <div class="llc-word">Lighten</div>
+          <div class="llc-body">Remove the weight. Light systems move faster, decide better, and last longer. Heaviness is always optional. Applied where accumulated mass is slowing the organisation down.</div>
+        </div>
+        <div class="less-letter-cell">
+          <div class="llc-letter">E</div>
+          <div class="llc-word">Eliminate</div>
+          <div class="llc-body">If it doesn't add value, it adds cost. Remove without sentiment. The hardest cuts are always the right ones. Applied where things persist only because they already exist.</div>
+        </div>
+        <div class="less-letter-cell">
+          <div class="llc-letter">S</div>
+          <div class="llc-word">Simplify</div>
+          <div class="llc-body">The clearest version is almost always the most effective. Complexity is rarely necessary. Applied where proliferation of options, priorities, or processes has obscured the signal.</div>
+        </div>
+        <div class="less-letter-cell">
+          <div class="llc-letter">S</div>
+          <div class="llc-word">Sharpen</div>
+          <div class="llc-body">What remains must be precise. Clarity is earned, not given. Applied where the question being asked is wrong — or is not being asked at all.</div>
+        </div>
+      </div>
+
+      <div class="less-interventions">
+        <div class="li-row">
+          <div class="li-letter-block">L</div>
+          <div class="li-bias">
+            <div class="li-bias-tag">Ch 01 · Status quo bias</div>
+            <div class="li-bias-name">The Preservation Problem</div>
+          </div>
+          <div class="li-intervention">
+            <div class="li-int-label">The intervention</div>
+            <div class="li-int-text">Replace the optimisation list with a kill list. For every new thing approved, one existing thing must be removed. Schedule a quarterly subtraction review with the same seniority as a budget review.</div>
+          </div>
+          <div class="li-less-tag">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <span class="less-pill l">L — Lighten</span>
+              <span class="less-pill e">E — Eliminate</span>
+            </div>
+          </div>
+        </div>
+        <div class="li-row" style="background:var(--paper);">
+          <div class="li-letter-block" style="background:var(--ink-mid);">S</div>
+          <div class="li-bias">
+            <div class="li-bias-tag">Ch 02 · Loss aversion</div>
+            <div class="li-bias-name">Strategic Paralysis</div>
+          </div>
+          <div class="li-intervention">
+            <div class="li-int-label">The intervention</div>
+            <div class="li-int-text">Stop asking "what does this cost us?" Start asking "what is the cost of not doing this, compounded over three years?" Make inaction as expensive on paper as it is in reality.</div>
+          </div>
+          <div class="li-less-tag">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <span class="less-pill s">S — Sharpen</span>
+            </div>
+          </div>
+        </div>
+        <div class="li-row">
+          <div class="li-letter-block">E</div>
+          <div class="li-bias">
+            <div class="li-bias-tag">Ch 03 · Social proof</div>
+            <div class="li-bias-name">Competitive Copying</div>
+          </div>
+          <div class="li-intervention">
+            <div class="li-int-label">The intervention</div>
+            <div class="li-int-text">Require a written answer to one question before adopting anything a competitor is doing: "Are we doing this because it is right for us, or because others are doing it?" Make it mandatory, not optional.</div>
+          </div>
+          <div class="li-less-tag">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <span class="less-pill e">E — Eliminate</span>
+              <span class="less-pill s2">S — Simplify</span>
+            </div>
+          </div>
+        </div>
+        <div class="li-row" style="background:var(--paper);">
+          <div class="li-letter-block" style="background:var(--ink-mid);">E</div>
+          <div class="li-bias">
+            <div class="li-bias-tag">Ch 04 · Sunk cost</div>
+            <div class="li-bias-name">The Investment Trap</div>
+          </div>
+          <div class="li-intervention">
+            <div class="li-int-label">The intervention</div>
+            <div class="li-int-text">Build one question into every portfolio review: "Would we fund this today, knowing only what we know about the future?" Not given what we've spent. Only forward-looking. Make it required.</div>
+          </div>
+          <div class="li-less-tag">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <span class="less-pill e">E — Eliminate</span>
+              <span class="less-pill s">S — Sharpen</span>
+            </div>
+          </div>
+        </div>
+        <div class="li-row">
+          <div class="li-letter-block">L</div>
+          <div class="li-bias">
+            <div class="li-bias-tag">Ch 05 · Present bias</div>
+            <div class="li-bias-name">The Quarter Horizon</div>
+          </div>
+          <div class="li-intervention">
+            <div class="li-int-label">The intervention</div>
+            <div class="li-int-text">Separate strategic investment from quarterly performance review — structurally. Ring-fence capital for investments whose returns are 18+ months out. Make the cost of deferral visible in the same meeting as the short-term metrics.</div>
+          </div>
+          <div class="li-less-tag">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <span class="less-pill l">L — Lighten</span>
+              <span class="less-pill s">S — Sharpen</span>
+            </div>
+          </div>
+        </div>
+        <div class="li-row" style="background:var(--paper);">
+          <div class="li-letter-block" style="background:var(--ink-mid);">E</div>
+          <div class="li-bias">
+            <div class="li-bias-tag">Ch 06 · Choice overload</div>
+            <div class="li-bias-name">Priority Inflation</div>
+          </div>
+          <div class="li-intervention">
+            <div class="li-int-label">The intervention</div>
+            <div class="li-int-text">No new priority without removing one. Not a guideline — a rule. A strategy with five genuine priorities, properly resourced, will outperform fifteen nominal ones every time. Prioritisation is a subtractive discipline.</div>
+          </div>
+          <div class="li-less-tag">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <span class="less-pill e">E — Eliminate</span>
+              <span class="less-pill s2">S — Simplify</span>
+            </div>
+          </div>
+        </div>
+        <div class="li-row">
+          <div class="li-letter-block">L</div>
+          <div class="li-bias">
+            <div class="li-bias-tag">Ch 07 · Anchoring bias</div>
+            <div class="li-bias-name">The Legacy Anchor</div>
+          </div>
+          <div class="li-intervention">
+            <div class="li-int-label">The intervention</div>
+            <div class="li-int-text">Every three years, justify significant budget allocations and structures from first principles — not from last year's position. Ask: "If we were building this from scratch today, would we build this?" If no, the anchor has been deciding for you.</div>
+          </div>
+          <div class="li-less-tag">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <span class="less-pill l">L — Lighten</span>
+              <span class="less-pill e">E — Eliminate</span>
+              <span class="less-pill s">S — Sharpen</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Closing block -->
+      <div style="background:var(--ink);padding:64px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:24px;">
+        <svg width="40" height="52" viewBox="0 0 70 90" fill="none">
+          <rect x="0" y="0" width="6" height="90" fill="#5db5a3"/>
+          <rect x="22" y="0" width="48" height="90" fill="#f6f3ee"/>
+        </svg>
+        <div style="font-size:clamp(24px,3vw,36px);font-weight:200;color:rgba(255,255,255,0.88);line-height:1.3;max-width:560px;">Complexity accumulates.<br><strong style="font-weight:700;color:var(--gold);">Clarity requires subtraction.</strong></div>
+        <div style="font-size:14px;font-weight:300;color:rgba(255,255,255,0.35);line-height:1.75;max-width:480px;">The Complexity Tax is not inevitable. It is the predictable consequence of not designing against it. The LESS framework is the design.</div>
+        <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:24px;max-width:480px;text-align:left;">
+          <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;">Read next</div>
+          <p style="font-size:13.5px;font-weight:300;color:rgba(255,255,255,0.4);line-height:1.8;">This playbook maps what the Complexity Tax costs. <span style="color:var(--teal);font-weight:400;" title="See companion publication">The Decision Playbook</span> — the companion publication — explains why individuals make the decisions that create it. The first explains the mechanism. This one shows the bill. Together, they are cause and effect.</p>
+        </div>
+        <div style="display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;justify-content:center;">
+          <a href="https://lhd.ai/clarity-score" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--ink);font-family:var(--f-sans);font-size:13px;font-weight:700;letter-spacing:0.06em;padding:13px 26px;border-radius:var(--radius);text-decoration:none;transition:all 0.2s;">Take the Clarity Score →</a>
+          <a href="https://lhd.ai" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:none;color:rgba(255,255,255,0.4);font-family:var(--f-mono);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;padding:13px 26px;border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);text-decoration:none;transition:all 0.2s;">lhd.ai</a>
+        </div>
+      </div>
+
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('audit')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Complexity Audit
+        </button>
+        <div class="ch-nav-spacer"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <button class="m-btn active" onclick="showPage('cover')">Cover</button>
+    <button class="m-btn" onclick="showPage('preface')">00 Preface</button>
+    <button class="m-btn" onclick="showPage('bill')">01 The Bill</button>
+    <button class="m-btn" onclick="showPage('ch02')">02 Preservation</button>
+    <button class="m-btn" onclick="showPage('ch03')">03 Paralysis</button>
+    <button class="m-btn" onclick="showPage('ch04')">04 Copying</button>
+    <button class="m-btn" onclick="showPage('ch05')">05 Investment</button>
+    <button class="m-btn" onclick="showPage('ch06')">06 Quarter</button>
+    <button class="m-btn" onclick="showPage('ch07')">07 Inflation</button>
+    <button class="m-btn" onclick="showPage('ch08')">08 Anchor</button>
+    <button class="m-btn" onclick="showPage('audit')">09 Audit</button>
+    <button class="m-btn" onclick="showPage('toolkit')">10 LESS</button>
+  </div>
+</nav>
+
+<script>
+const pageOrder = ['cover','preface','bill','ch02','ch03','ch04','ch05','ch06','ch07','ch08','audit','toolkit'];
+let currentPage = 'cover';
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.chapter-btn, .m-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.chapter-btn').forEach(b => {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + id + "'")) b.classList.add('active');
+  });
+  document.querySelectorAll('.m-btn').forEach(b => {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + id + "'")) b.classList.add('active');
+  });
+  currentPage = id;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const total = pageOrder.length - 1;
+  const idx = pageOrder.indexOf(currentPage);
+  const position = idx <= 0 ? 0 : idx;
+  const pct = Math.round((position / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = position === 0 ? '0 / ' + total + ' chapters' : position + ' / ' + total + ' chapters';
+}
+
+function toggleChapter(id) {
+  const card = document.getElementById(id);
+  card.classList.toggle('open');
+}
+
+updateProgress();
+</script>
+
+</body>
+</html>
