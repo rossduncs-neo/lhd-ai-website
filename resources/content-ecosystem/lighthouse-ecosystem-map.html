@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<!-- © 2025 light house. Ross Duncan. All rights reserved. Unauthorised reproduction prohibited. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>light house — Content Ecosystem Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:        #18160f;
+  --ink-soft:   #2a2820;
+  --warm-white: #f6f3ee;
+  --paper:      #edeae3;
+  --signal:     #5db5a3;
+  --tortoise:   #c8a96e;
+  --stone:      #5a5650;
+  --rule:       #d5d0c8;
+  --f:          'Outfit', sans-serif;
+  --f-mono:     'DM Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 16px; }
+
+body {
+  background: var(--ink);
+  color: var(--warm-white);
+  font-family: var(--f);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+.doc-header {
+  padding: 32px 48px 28px;
+  border-bottom: 1px solid var(--ink-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.wordmark {
+  font-family: var(--f);
+  font-size: 15px;
+  letter-spacing: 0.13em;
+  display: flex;
+  gap: 0.28em;
+}
+.wm-l { font-weight: 200; color: rgba(246,243,238,0.6); }
+.wm-h { font-weight: 700; color: var(--warm-white); }
+
+.doc-title {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+
+/* ── MAP CONTAINER ── */
+.map-wrap {
+  flex: 1;
+  padding: 48px 48px 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── LAYER ROWS ── */
+.layer {
+  display: grid;
+  align-items: center;
+  position: relative;
+}
+
+/* Layer label column */
+.layer-label {
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.18);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  text-align: center;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+/* ── TRAFFIC ROW ── */
+.traffic-row {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  padding-bottom: 20px;
+}
+
+.traffic-source {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.traffic-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.22);
+}
+
+.traffic-arrow {
+  width: 1px;
+  height: 20px;
+  background: linear-gradient(to bottom, rgba(93,181,163,0.4), rgba(93,181,163,0.1));
+}
+
+/* ── SECTION DIVIDERS ── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 12px 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  border-top: 1px dashed rgba(255,255,255,0.07);
+}
+
+.divider-label {
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.15);
+  flex-shrink: 0;
+}
+
+/* ── CARDS ── */
+.card-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 8px 0;
+  position: relative;
+}
+
+.card {
+  border-radius: 4px;
+  padding: 24px 28px;
+  position: relative;
+  transition: transform 0.2s;
+}
+
+.card:hover { transform: translateY(-2px); }
+
+/* Primary — teal */
+.card-primary {
+  background: rgba(93,181,163,0.1);
+  border: 1px solid rgba(93,181,163,0.3);
+  width: 360px;
+}
+
+/* Conversion — tortoise */
+.card-conversion {
+  background: rgba(200,169,110,0.1);
+  border: 1px solid rgba(200,169,110,0.3);
+  width: 360px;
+}
+
+/* Depth — stone */
+.card-depth {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  width: 260px;
+}
+
+/* Contact — teal lighter */
+.card-contact {
+  background: rgba(93,181,163,0.08);
+  border: 1px solid rgba(93,181,163,0.2);
+  width: 360px;
+}
+
+.card-eyebrow {
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.eyebrow-teal   { color: var(--signal); }
+.eyebrow-tort   { color: var(--tortoise); }
+.eyebrow-stone  { color: rgba(255,255,255,0.3); }
+
+.card-name {
+  font-family: var(--f);
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--warm-white);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.card-desc {
+  font-family: var(--f);
+  font-weight: 300;
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.card-url {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.2);
+}
+
+.card-tag {
+  display: inline-block;
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 2px;
+  margin-top: 10px;
+}
+
+.tag-teal   { background: rgba(93,181,163,0.15);  color: var(--signal); }
+.tag-tort   { background: rgba(200,169,110,0.15); color: var(--tortoise); }
+.tag-stone  { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.35); }
+
+/* ── CONNECTORS ── */
+.connector-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 44px;
+}
+
+.connector-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.connector-line {
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(93,181,163,0.5), rgba(93,181,163,0.2));
+}
+
+.connector-line-tall { height: 44px; }
+.connector-line-short { height: 20px; }
+
+.connector-label {
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(93,181,163,0.4);
+  margin: 0 12px;
+}
+
+.connector-arrow {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 6px solid rgba(93,181,163,0.4);
+}
+
+/* Branching connector for depth row */
+.branch-connector {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 48px;
+  position: relative;
+  width: 560px;
+  margin: 0 auto;
+}
+
+.branch-line-v {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 24px;
+  background: rgba(255,255,255,0.1);
+}
+
+.branch-line-h {
+  position: absolute;
+  top: 24px;
+  left: calc(25% - 0px);
+  right: calc(25% - 0px);
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+}
+
+.branch-drop-left {
+  position: absolute;
+  left: 25%;
+  top: 24px;
+  width: 1px;
+  height: 24px;
+  background: rgba(255,255,255,0.1);
+}
+
+.branch-drop-right {
+  position: absolute;
+  right: 25%;
+  top: 24px;
+  width: 1px;
+  height: 24px;
+  background: rgba(255,255,255,0.1);
+}
+
+.branch-arrow-left {
+  position: absolute;
+  left: calc(25% - 4px);
+  top: 44px;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid rgba(255,255,255,0.15);
+}
+
+.branch-arrow-right {
+  position: absolute;
+  right: calc(25% - 4px);
+  top: 44px;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid rgba(255,255,255,0.15);
+}
+
+.branch-arrow-center {
+  position: absolute;
+  left: calc(50% - 4px);
+  top: 44px;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid rgba(93,181,163,0.4);
+}
+
+/* ── DEPTH ROW ── */
+.depth-row {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 8px 0;
+}
+
+/* ── RELATIONSHIP NOTES ── */
+.relationship-strip {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-top: 48px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 32px;
+}
+
+.rel-item {
+  flex: 1;
+  max-width: 220px;
+  padding: 0 24px;
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+.rel-item:last-child { border-right: none; }
+
+.rel-label {
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--signal);
+  margin-bottom: 8px;
+}
+
+.rel-text {
+  font-family: var(--f);
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ── FOOTER ── */
+.doc-footer {
+  padding: 24px 48px;
+  border-top: 1px solid var(--ink-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-note {
+  font-family: var(--f-mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.12);
+}
+
+/* ── BASE OVERFLOW PROTECTION ── */
+html, body { overflow-x: hidden; }
+* { max-width: 100%; }
+img, svg { max-width: 100%; height: auto; }
+
+@media (max-width: 860px) {
+  .doc-header { padding: 20px 24px; flex-wrap: wrap; gap: 12px; }
+  .map-canvas { padding: 24px 16px; overflow-x: auto; }
+  .layer { min-width: 600px; }
+  .map-scroll-hint { display: block; font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.3); text-align: center; padding: 12px; }
+}
+
+@media (max-width: 600px) {
+  .doc-header { padding: 16px 20px; }
+  .doc-footer { padding: 24px 20px; flex-direction: column; align-items: flex-start; gap: 8px; }
+  .header-meta { font-size: 9px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="doc-header">
+  <div class="logo">
+    <svg width="16" height="20" viewBox="0 0 70 90" fill="none">
+      <rect x="0"  y="0" width="6"  height="90" fill="#f6f3ee"/>
+      <rect x="22" y="0" width="48" height="90" fill="#f6f3ee"/>
+    </svg>
+    <div class="wordmark">
+      <span class="wm-l">light</span>
+      <span class="wm-h">house</span>
+    </div>
+  </div>
+  <div class="doc-title">Content Ecosystem Map</div>
+  <div style="font-family:var(--f-mono);font-size:8px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.12);">2025</div>
+</div>
+
+<!-- MAP -->
+<div class="map-wrap">
+
+  <!-- TRAFFIC SOURCES -->
+  <div class="traffic-row">
+    <div class="traffic-source">
+      <div class="traffic-label">LinkedIn</div>
+      <div class="traffic-arrow"></div>
+    </div>
+    <div class="traffic-source">
+      <div class="traffic-label">Search / referral</div>
+      <div class="traffic-arrow"></div>
+    </div>
+    <div class="traffic-source">
+      <div class="traffic-label">Newsletter</div>
+      <div class="traffic-arrow"></div>
+    </div>
+  </div>
+
+  <!-- DIVIDER: AWARENESS -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">Awareness</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- COMPLEXITY TAX -->
+  <div class="card-row">
+    <div class="card card-primary">
+      <div class="card-eyebrow eyebrow-teal">Flagship publication</div>
+      <div class="card-name">The Complexity Tax</div>
+      <div class="card-desc">Names the problem leaders feel but haven't articulated. The entry point for strangers. Earns the right to be shared, cited, and linked.</div>
+      <div class="card-url">lhd.ai/complexity-tax</div>
+      <div class="card-tag tag-teal">Top of funnel</div>
+    </div>
+  </div>
+
+  <!-- CONNECTOR -->
+  <div class="connector-wrap">
+    <div class="connector-center">
+      <div class="connector-line connector-line-short"></div>
+      <div class="connector-label">primary CTA →</div>
+      <div class="connector-line connector-line-short"></div>
+      <div class="connector-arrow"></div>
+    </div>
+  </div>
+
+  <!-- DIVIDER: CONVERSION -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">Conversion</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- CLARITY SCORE -->
+  <div class="card-row">
+    <div class="card card-conversion">
+      <div class="card-eyebrow eyebrow-tort">Diagnostic instrument</div>
+      <div class="card-name">Clarity Score</div>
+      <div class="card-desc">Turns a reader into a lead with intent. The moment someone moves from "interesting ideas" to "this is about me." The pivot point of the entire ecosystem.</div>
+      <div class="card-url">lhd.ai/clarity-score</div>
+      <div class="card-tag tag-tort">Lead capture</div>
+    </div>
+  </div>
+
+  <!-- BRANCHING CONNECTOR -->
+  <div style="display:flex; justify-content:center; margin: 8px 0;">
+    <div class="branch-connector">
+      <div class="branch-line-v"></div>
+      <div class="branch-line-h"></div>
+      <div class="branch-drop-left"></div>
+      <div class="branch-drop-right"></div>
+      <div class="branch-arrow-left"></div>
+      <div class="branch-arrow-center"></div>
+      <div class="branch-arrow-right"></div>
+    </div>
+  </div>
+
+  <!-- DIVIDER: DEPTH -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">Depth</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- THREE DEPTH CARDS -->
+  <div class="depth-row">
+
+    <!-- BE Playbook -->
+    <div class="card card-depth" style="width:220px;">
+      <div class="card-eyebrow eyebrow-stone">Foundation document</div>
+      <div class="card-name" style="font-size:15px;">The Decision Playbook</div>
+      <div class="card-desc">The individual psychology behind organisational complexity. Discovered, not marketed. The science beneath the tax.</div>
+      <div class="card-url">lhd.ai/be-playbook</div>
+      <div class="card-tag tag-stone">Credibility artifact</div>
+    </div>
+
+    <!-- CT Playbook -->
+    <div class="card card-primary" style="width:220px;">
+      <div class="card-eyebrow eyebrow-teal">Applied resource</div>
+      <div class="card-name" style="font-size:15px;">CT Playbook</div>
+      <div class="card-desc">Biases at organisational scale. Practical interventions. The LESS framework in operation. The publication made actionable.</div>
+      <div class="card-url">lhd.ai/complexity-tax/playbook</div>
+      <div class="card-tag tag-teal">Depth resource</div>
+    </div>
+
+    <!-- BE Playbook -->
+    <div class="card card-depth" style="width:220px;">
+      <div class="card-eyebrow eyebrow-stone">Reference library</div>
+      <div class="card-name" style="font-size:15px;">Further Reading</div>
+      <div class="card-desc">Kahneman. Thaler. Ariely. Cialdini. The intellectual lineage made visible. Rewards the curious reader.</div>
+      <div class="card-url">Referenced within playbooks</div>
+      <div class="card-tag tag-stone">Passive signal</div>
+    </div>
+
+  </div>
+
+  <!-- CONNECTOR TO CONTACT -->
+  <div class="connector-wrap" style="margin-top: 8px;">
+    <div class="connector-center">
+      <div class="connector-line connector-line-short"></div>
+      <div class="connector-label">primary CTA →</div>
+      <div class="connector-line connector-line-short"></div>
+      <div class="connector-arrow"></div>
+    </div>
+  </div>
+
+  <!-- DIVIDER: CONTACT -->
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">Contact</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="card-row">
+    <div class="card card-contact">
+      <div class="card-eyebrow eyebrow-teal">The conversation</div>
+      <div class="card-name">Get in touch</div>
+      <div class="card-desc">Every piece of content points here. The reader has self-qualified through the diagnostic. The conversation starts with context.</div>
+      <div class="card-url">lhd.ai/#contact · ross@lhd.ai</div>
+      <div class="card-tag tag-teal">Engagement</div>
+    </div>
+  </div>
+
+  <!-- RELATIONSHIP NOTES -->
+  <div class="relationship-strip">
+    <div class="rel-item">
+      <div class="rel-label">The lens</div>
+      <div class="rel-text">The BE Playbook explains why humans decide irrationally. Individual level. Rory Sutherland territory.</div>
+    </div>
+    <div class="rel-item">
+      <div class="rel-label">The application</div>
+      <div class="rel-text">The CT Playbook shows what those biases do at organisational scale. Where theory becomes commercial consequence.</div>
+    </div>
+    <div class="rel-item">
+      <div class="rel-label">The instrument</div>
+      <div class="rel-text">The Clarity Score makes the intellectual position empirical. Not just writing about complexity — measuring it.</div>
+    </div>
+    <div class="rel-item">
+      <div class="rel-label">The position</div>
+      <div class="rel-text">A specific and uncrowded territory: what cognitive biases do inside marketing organisations, and how to reduce it.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="doc-footer">
+  <div class="logo">
+    <svg width="12" height="16" viewBox="0 0 70 90" fill="none">
+      <rect x="0"  y="0" width="6"  height="90" fill="#f6f3ee" opacity="0.4"/>
+      <rect x="22" y="0" width="48" height="90" fill="#f6f3ee" opacity="0.4"/>
+    </svg>
+    <div class="wordmark" style="font-size:12px;">
+      <span class="wm-l">light</span>
+      <span class="wm-h">house</span>
+    </div>
+  </div>
+  <div class="footer-note">Complexity accumulates. Clarity requires subtraction.</div>
+  <div class="footer-note">Content Ecosystem · 2025</div>
+</div>
+
+  <!-- COPYRIGHT -->
+  <div style="background:var(--ink);padding:16px 48px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+    <p style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin:0;">© 2025 light house · Ross Duncan · All rights reserved · Unauthorised reproduction prohibited</p>
+  </div>
+</body>
+</html>
