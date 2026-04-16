@@ -1,0 +1,3325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Behavioural Economics Playbook — light house</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --ink:         #18160f;
+  --ink-mid:     #2a2820;
+  --ink-soft:    #b8b4ac;
+  --text-soft:   #5a5650;
+  --warm-white:  #f6f3ee;
+  --paper:       #edeae3;
+  --paper-deep:  #d5d0c8;
+  --teal:        #5db5a3;
+  --teal-light:  #e8f4f1;
+  --teal-mid:    #b8ddd8;
+  --gold:        #c8a96e;
+  --gold-light:  #f7f0e3;
+  --gold-mid:    #e2d0a8;
+  --red:         #b5453a;
+  --red-light:   #f7eae9;
+  --red-mid:     #e0b0ac;
+  --violet:      #6b5f94;
+  --violet-light:#f0eef7;
+  --violet-mid:  #c4bfe0;
+  --rule:        #d5d0c8;
+  --f-serif:     'Outfit', sans-serif;
+  --f-sans:      'Outfit', sans-serif;
+  --f-mono:      'DM Mono', monospace;
+  --radius:      4px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--warm-white);
+  color: var(--ink);
+  font-family: var(--f-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ─── LAYOUT ──────────────────────────── */
+.shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ─── SIDEBAR NAV ─────────────────────── */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  padding: 28px 24px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-mark svg { display: block; }
+
+.logo-text {
+  font-family: var(--f-sans);
+  font-size: 14px;
+  letter-spacing: 0.13em;
+  color: rgba(255,255,255,0.85);
+  font-weight: 200;
+}
+.logo-text strong {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.sidebar-chapters {
+  flex: 1;
+  padding: 20px 0;
+}
+
+.chapter-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 11px 24px;
+  text-align: left;
+  transition: background 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.chapter-btn:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.chapter-btn.active {
+  background: rgba(255,255,255,0.07);
+  border-left-color: var(--teal);
+}
+
+.ch-num {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  color: rgba(255,255,255,0.22);
+  flex-shrink: 0;
+  width: 20px;
+}
+
+.chapter-btn.active .ch-num { color: var(--teal); }
+
+.ch-label {
+  font-family: var(--f-sans);
+  font-size: 12.5px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.38);
+  line-height: 1.3;
+}
+
+.chapter-btn.active .ch-label {
+  color: rgba(255,255,255,0.88);
+  font-weight: 500;
+}
+
+.sidebar-progress {
+  padding: 20px 24px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+.progress-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 10px;
+}
+
+.progress-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--teal);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.progress-text {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  color: rgba(255,255,255,0.2);
+  margin-top: 8px;
+  letter-spacing: 0.1em;
+}
+
+/* ─── MAIN CONTENT ────────────────────── */
+.main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ─── PAGE SYSTEM ─────────────────────── */
+.page { display: none !important; min-height: 100vh; }
+.page.active { display: block !important; animation: fadeIn 0.25s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── CHAPTER HEADER ──────────────────── */
+.ch-header {
+  padding: 56px 64px 48px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+  overflow: hidden;
+}
+
+.ch-header::after {
+  content: attr(data-num);
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--f-sans);
+  font-size: 160px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.035);
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.ch-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 20px;
+}
+
+.ch-eyebrow::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--teal);
+}
+
+.ch-title {
+  font-family: var(--f-sans);
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 200;
+  line-height: 1.1;
+  color: var(--ink);
+  max-width: 100%;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.ch-title strong {
+  font-weight: 700;
+  font-style: normal;
+  color: var(--teal);
+}
+
+.ch-subtitle {
+  margin-top: 14px;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text-soft);
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+.ch-meta {
+  position: absolute;
+  bottom: 24px;
+  right: 64px;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--rule);
+  text-transform: uppercase;
+}
+
+/* ─── CONTENT WRAPPER ─────────────────── */
+.content {
+  padding: 48px 64px 80px;
+}
+
+/* ─── COVER PAGE ──────────────────────── */
+#page-cover {
+  background: var(--ink);
+  flex-direction: column;
+}
+#page-cover.active {
+  display: flex !important;
+}
+
+.cover-body {
+  flex: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 72px 64px 56px;
+  position: relative;
+}
+
+.cover-body::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(135deg, transparent 60%, rgba(74,170,150,0.06) 100%);
+  pointer-events: none;
+}
+
+.cover-tag {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cover-tag::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--teal);
+}
+
+.cover-title {
+  font-family: var(--f-sans);
+  font-size: clamp(48px, 7vw, 80px);
+  font-weight: 200;
+  line-height: 1.0;
+  color: rgba(255,255,255,0.9);
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+}
+
+.cover-title em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--teal);
+  display: block;
+}
+
+.cover-subtitle {
+  font-family: var(--f-sans);
+  font-size: 16px;
+  font-weight: 300;
+  color: rgba(255,255,255,0.55);
+  margin-top: 28px;
+  max-width: 480px;
+  line-height: 1.7;
+}
+
+.cover-stats {
+  display: flex;
+  gap: 48px;
+  margin-top: 64px;
+  padding-top: 40px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.c-stat { }
+.c-stat-num {
+  font-family: var(--f-sans);
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--teal);
+  line-height: 1;
+}
+.c-stat-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  margin-top: 6px;
+}
+
+.cover-start-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--teal);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 14px 28px;
+  border-radius: 4px;
+  margin-top: 40px;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.cover-start-btn:hover { background: #4d9e8e; transform: translateY(-1px); }
+.cover-start-btn svg { transition: transform 0.2s; }
+.cover-start-btn:hover svg { transform: translateX(3px); }
+
+/* ─── COLOUR LEGEND ───────────────────── */
+.colour-key {
+  display: flex;
+  gap: 24px;
+  padding: 16px 64px;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  flex-wrap: wrap;
+}
+
+.ck-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-soft);
+  font-family: var(--f-mono);
+  letter-spacing: 0.08em;
+}
+
+.ck-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ─── INTRO CARDS ─────────────────────── */
+.intro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.intro-card {
+  background: var(--paper);
+  border-radius: var(--radius);
+  padding: 36px;
+  border: 1px solid var(--rule);
+}
+
+.intro-card.dark {
+  background: var(--ink);
+  border-color: transparent;
+}
+
+.ic-label {
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 14px;
+}
+
+.ic-title {
+  font-family: var(--f-sans);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+
+.dark .ic-title { color: rgba(255,255,255,0.88); }
+
+.ic-body {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-soft);
+}
+
+.dark .ic-body { color: rgba(255,255,255,0.38); }
+.ic-body strong { color: var(--ink); font-weight: 600; }
+.dark .ic-body strong { color: rgba(255,255,255,0.75); }
+
+/* ─── SYSTEM 1 / 2 ────────────────────── */
+.systems-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.sys-card {
+  border-radius: var(--radius);
+  padding: 36px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sys-card.s1 { background: var(--teal-light); border: 1px solid var(--teal-mid); }
+.sys-card.s2 { background: var(--gold-light); border: 1px solid var(--gold-mid); }
+
+.sys-big-num {
+  font-family: var(--f-sans);
+  font-size: 96px;
+  font-weight: 700;
+  line-height: 1;
+  position: absolute;
+  right: 24px;
+  top: 16px;
+  opacity: 0.12;
+}
+
+.s1 .sys-big-num { color: var(--teal); }
+.s2 .sys-big-num { color: var(--gold); }
+
+.sys-tag {
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.s1 .sys-tag { color: var(--teal); }
+.s2 .sys-tag { color: var(--gold); }
+
+.sys-name {
+  font-family: var(--f-sans);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+
+.sys-desc {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text-soft);
+  margin-bottom: 20px;
+}
+
+.sys-examples {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  line-height: 1.7;
+  letter-spacing: 0.04em;
+  padding: 14px 16px;
+  border-radius: 4px;
+}
+
+.s1 .sys-examples { background: rgba(74,170,150,0.12); color: var(--teal); }
+.s2 .sys-examples { background: rgba(196,154,78,0.12); color: var(--gold); }
+
+/* ─── SECTION DIVIDER ─────────────────── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 36px 0 24px;
+}
+
+.sd-label {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  flex-shrink: 0;
+}
+
+.sd-line {
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+
+/* ─── PIONEERS ────────────────────────── */
+.pioneers-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.pioneer-card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+}
+
+.p-role {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 10px;
+}
+
+.p-name {
+  font-family: var(--f-sans);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 10px;
+  line-height: 1.2;
+}
+
+.p-note {
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--text-soft);
+}
+
+/* ─── BIAS CARDS ──────────────────────── */
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 40px 0 20px;
+}
+
+.cat-pill {
+  font-family: var(--f-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+.cat-pill.teal { background: var(--teal-light); color: var(--teal); border: 1px solid var(--teal-mid); }
+.cat-pill.gold { background: var(--gold-light); color: var(--gold); border: 1px solid var(--gold-mid); }
+.cat-pill.rust { background: var(--red-light); color: var(--red); border: 1px solid var(--red-mid); }
+.cat-pill.paper { background: var(--violet-light); color: var(--violet); border: 1px solid var(--violet-mid); }
+
+.cat-line { flex: 1; height: 1px; background: var(--rule); }
+
+.bias-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 8px;
+  align-items: start;
+}
+
+.bias-card {
+  background: var(--warm-white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.bias-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+  border-color: var(--teal-mid);
+}
+
+.bias-card-header {
+  padding: 20px 20px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+
+
+.bias-name {
+  font-family: var(--f-sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.bias-preview {
+  padding: 0 20px 16px;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--text-soft);
+  flex: 1;
+}
+
+.bias-expand-hint {
+  padding: 10px 20px;
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--teal);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bias-expand-hint svg { transition: transform 0.2s; }
+/* hint svg rotation handled inline */
+
+.bias-detail {
+  display: none;
+  padding: 16px 20px 20px;
+  border-top: 1px solid var(--rule);
+  background: var(--teal-light);
+}
+
+/* bias-detail controlled via inline style by toggleBiasById */
+
+.bd-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 6px;
+}
+
+.bd-example {
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--ink);
+  font-weight: 300;
+}
+
+/* ─── EXPERIMENT ROWS ─────────────────── */
+.exp-row {
+  background: var(--warm-white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.exp-row:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+.exp-header {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  align-items: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.exp-num-block {
+  background: var(--ink);
+  height: 100%;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-mono);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--teal);
+}
+
+.exp-head-content {
+  padding: 20px 24px;
+}
+
+.exp-researcher {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 4px;
+}
+
+.exp-title {
+  font-family: var(--f-sans);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.exp-toggle {
+  padding: 0 24px;
+  color: var(--text-soft);
+  transition: transform 0.2s;
+}
+
+.exp-row.open .exp-toggle { transform: rotate(180deg); }
+
+.exp-body {
+  display: none;
+  border-top: 1px solid var(--rule);
+}
+
+.exp-row.open .exp-body { display: grid; grid-template-columns: 1fr 1fr; }
+
+.exp-col {
+  padding: 24px 28px;
+}
+
+.exp-col:first-child { border-right: 1px solid var(--rule); }
+.exp-col:last-child { background: var(--violet-light); }
+
+.exp-col-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin-bottom: 10px;
+}
+
+.exp-text {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--text-soft);
+}
+
+.exp-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.exp-tag {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: var(--teal-light);
+  color: var(--teal);
+  border: 1px solid var(--teal-mid);
+}
+
+/* ─── APPLICATIONS TABS ───────────────── */
+.app-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 5px;
+  margin-bottom: 32px;
+}
+
+.app-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px 16px;
+  border-radius: 4px;
+  font-family: var(--f-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-soft);
+  transition: all 0.15s;
+}
+
+.app-tab:hover { background: var(--warm-white); color: var(--ink); }
+.app-tab.active { background: var(--warm-white); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.app-tab[onclick*="personal"].active { color: var(--teal); }
+.app-tab[onclick*="business"].active { color: var(--gold); }
+.app-tab[onclick*="finance"].active  { color: var(--gold); }
+
+.app-panel { display: none; }
+.app-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.tip-card {
+  background: var(--warm-white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 28px;
+  border-left: 4px solid var(--teal);
+  position: relative;
+}
+
+/* Domain colour accents per application panel */
+#app-personal .tip-card { border-left-color: var(--teal); }
+#app-business .tip-card { border-left-color: var(--gold); }
+
+
+#app-business .tip-num  { color: var(--gold); }
+
+
+#app-business .tip-footer { color: var(--gold); }
+
+
+.tip-num {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.tip-name {
+  font-family: var(--f-sans);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 10px;
+  line-height: 1.25;
+}
+
+.tip-body {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--text-soft);
+  margin-bottom: 14px;
+}
+
+.tip-footer {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+  line-height: 1.6;
+}
+
+/* ─── MISTAKES ────────────────────────── */
+.mistake-card {
+  background: var(--warm-white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.mistake-header {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  align-items: stretch;
+  cursor: pointer;
+}
+
+.mistake-idx {
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-mono);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--red);
+  border-right: 1px solid var(--rule);
+}
+
+.mistake-head-content {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mistake-name {
+  font-family: var(--f-sans);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.mistake-toggle {
+  color: var(--text-soft);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.mistake-card.open .mistake-toggle { transform: rotate(180deg); }
+
+.mistake-body {
+  display: none;
+  border-top: 1px solid var(--rule);
+}
+
+.mistake-card.open .mistake-body { display: grid; grid-template-columns: 1fr 1fr; }
+
+.mistake-text-col, .mistake-fix-col {
+  padding: 20px 24px;
+}
+
+.mistake-fix-col {
+  background: var(--gold-light);
+  border-left: 1px solid var(--gold-mid);
+}
+
+.mf-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.mf-text {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--text-soft);
+}
+
+/* ─── TOOLKIT ─────────────────────────── */
+.toolkit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.tool-card {
+  background: var(--warm-white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.tool-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  transform: translateY(-2px);
+}
+
+.tool-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--gold);
+}
+
+.tool-num {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.tool-name {
+  font-family: var(--f-sans);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 10px;
+  line-height: 1.25;
+}
+
+.tool-desc {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--text-soft);
+  margin-bottom: 16px;
+}
+
+.tool-how {
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--text-soft);
+  padding: 14px 16px;
+  background: var(--gold-light);
+  border-radius: 4px;
+  border-left: 3px solid var(--gold);
+}
+
+.tool-how::before {
+  content: 'HOW → ';
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+}
+
+/* ─── CASE STUDIES ────────────────────── */
+.cs-card {
+  background: var(--warm-white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.cs-top {
+  display: grid;
+  grid-template-columns: 200px 1fr 1fr;
+  gap: 0;
+}
+
+.cs-brand {
+  padding: 28px;
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cs-company {
+  font-family: var(--f-sans);
+  font-size: 24px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.88);
+  margin-bottom: 6px;
+}
+
+.cs-tagline {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  line-height: 1.5;
+}
+
+.cs-biases {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.cs-bias-pill {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  padding: 3px 7px;
+  border-radius: 3px;
+  background: var(--violet-light);
+  color: var(--violet);
+  border: 1px solid var(--violet-mid);
+}
+
+.cs-col {
+  padding: 24px 28px;
+  border-left: 1px solid var(--rule);
+}
+
+.cs-col:last-child {
+  background: var(--paper);
+}
+
+.cs-col-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin-bottom: 10px;
+}
+
+.cs-text {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--text-soft);
+}
+
+/* ─── QUIZ ────────────────────────────── */
+.quiz-wrapper {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 40px;
+}
+
+.quiz-intro {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.quiz-intro-title {
+  font-family: var(--f-sans);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.quiz-intro-sub {
+  font-size: 15px;
+  color: var(--text-soft);
+}
+
+.q-progress {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.q-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--rule);
+  transition: background 0.3s;
+}
+
+.q-dot.done { background: var(--teal); }
+.q-dot.current { background: var(--ink); }
+
+.q-card {
+  background: var(--warm-white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 24px;
+  display: none;
+}
+
+.q-card.active { display: block; animation: fadeIn 0.2s ease; }
+
+.q-number {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 14px;
+}
+
+.q-text {
+  font-family: var(--f-sans);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--ink);
+  margin-bottom: 24px;
+}
+
+.q-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.q-option {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 14px 18px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--ink);
+  text-align: left;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.q-option:hover { border-color: var(--teal); background: var(--teal-light); }
+.q-option.selected-correct { background: var(--teal-light); border-color: var(--teal); color: var(--teal); }
+.q-option.selected-wrong { background: var(--red-light); border-color: var(--red); color: var(--red); }
+.q-option.reveal-correct { background: var(--teal-light); border-color: var(--teal); }
+
+.q-opt-indicator {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--rule);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.q-feedback {
+  display: none;
+  padding: 16px 18px;
+  border-radius: 4px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  margin-top: 14px;
+}
+
+.q-feedback.correct { background: var(--teal-light); color: var(--teal); border: 1px solid var(--teal-mid); }
+.q-feedback.wrong { background: var(--red-light); color: var(--red); border: 1px solid var(--red-mid); }
+
+.q-next-btn {
+  display: none;
+  margin-top: 16px;
+  background: var(--ink);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.q-next-btn:hover { background: var(--ink-mid); }
+
+.quiz-result {
+  display: none;
+  text-align: center;
+  padding: 20px;
+}
+
+.quiz-score {
+  font-family: var(--f-sans);
+  font-size: 72px;
+  font-weight: 700;
+  color: var(--teal);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.quiz-score-label {
+  font-size: 16px;
+  color: var(--text-soft);
+  margin-bottom: 24px;
+}
+
+.quiz-message {
+  font-family: var(--f-sans);
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--ink);
+  margin-bottom: 28px;
+}
+
+.quiz-restart {
+  background: var(--teal);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-sans);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 12px 28px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.quiz-restart:hover { background: #4d9e8e; }
+
+/* ─── PERSONAL TOOLKIT BUILDER ────────── */
+.toolkit-builder {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.tb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.tb-title {
+  font-family: var(--f-sans);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.tb-count {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--teal);
+  background: var(--teal-light);
+  border: 1px solid var(--teal-mid);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.tb-items {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.tb-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--warm-white);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.tb-item:hover { border-color: var(--teal); }
+.tb-item.checked { border-color: var(--teal); background: var(--teal-light); }
+
+.tb-checkbox {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--rule);
+  border-radius: 3px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.tb-item.checked .tb-checkbox {
+  background: var(--teal);
+  border-color: var(--teal);
+}
+
+.tb-item-text {
+  font-size: 13px;
+  color: var(--text-soft);
+  line-height: 1.4;
+}
+
+.tb-item.checked .tb-item-text { color: var(--teal); font-weight: 500; }
+
+.tb-export {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tb-btn {
+  background: var(--ink);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-sans);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.tb-btn:hover { background: var(--ink-mid); }
+
+.tb-btn.secondary {
+  background: none;
+  color: var(--text-soft);
+  border: 1px solid var(--rule);
+}
+.tb-btn.secondary:hover { border-color: var(--ink); color: var(--ink); background: none; }
+
+/* ─── CHEAT SHEET ─────────────────────── */
+.cheat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.cheat-col {
+  background: var(--warm-white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+
+.cheat-col-title {
+  font-family: var(--f-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--teal-light);
+}
+
+.cheat-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--paper-deep);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-soft);
+}
+
+.cheat-item:last-child { border-bottom: none; }
+.cheat-item strong { color: var(--ink); font-weight: 600; }
+
+.cheat-bullet {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.cheat-bullet.teal { background: var(--teal); }
+.cheat-bullet.gold { background: var(--gold); }
+.cheat-bullet.violet { background: var(--violet); }
+.cheat-bullet.red { background: var(--red); }
+
+.principles-block {
+  background: var(--ink);
+  border-radius: var(--radius);
+  padding: 40px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.principle {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pr-num {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+
+.pr-name {
+  font-family: var(--f-sans);
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.88);
+  line-height: 1.2;
+}
+
+.pr-body {
+  font-size: 13px;
+  line-height: 1.75;
+  color: rgba(255,255,255,0.35);
+}
+
+.reading-row {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.reading-label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal);
+  flex-shrink: 0;
+  padding-top: 5px;
+}
+
+.reading-books {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.reading-book {
+  font-size: 12.5px;
+  color: var(--text-soft);
+  padding: 5px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--warm-white);
+}
+
+/* ─── MOBILE NAV (bottom bar) ─────────── */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--ink);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  overflow-x: auto;
+  scrollbar-width: none;
+  z-index: 200;
+}
+
+.mobile-nav::-webkit-scrollbar { display: none; }
+
+.mobile-nav-inner {
+  display: flex;
+  padding: 0 12px;
+  min-width: max-content;
+}
+
+.m-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.m-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+@media (max-width: 860px) {
+  .sidebar { display: none; }
+  .mobile-nav { display: flex; }
+  .ch-header { padding: 40px 28px 32px; }
+  .content { padding: 32px 28px 100px; }
+  .bias-grid { grid-template-columns: 1fr 1fr; }
+  .cheat-grid { grid-template-columns: 1fr 1fr; }
+  .cs-top { grid-template-columns: 1fr; }
+  .cs-brand { border-radius: 0; }
+  .cs-col { border-left: none; border-top: 1px solid var(--rule); }
+  .systems-grid { grid-template-columns: 1fr; }
+  .pioneers-grid { grid-template-columns: 1fr 1fr; }
+  .intro-grid { grid-template-columns: 1fr; }
+  .principles-block { grid-template-columns: 1fr; }
+  .app-panel.active { grid-template-columns: 1fr; }
+  .toolkit-grid { grid-template-columns: 1fr; }
+  .tb-items { grid-template-columns: 1fr; }
+  .exp-row.open .exp-body { grid-template-columns: 1fr; }
+  .exp-col:first-child { border-right: none; border-bottom: 1px solid var(--rule); }
+  .mistake-card.open .mistake-body { grid-template-columns: 1fr; }
+  .mistake-fix-col { border-left: none; border-top: 1px solid var(--gold-mid); }
+  .exp-col:last-child { background: var(--violet-light); }
+}
+
+
+/* ─── CHAPTER NAV FOOTER ──────────────── */
+.ch-nav-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 64px 48px;
+  border-top: 1px solid var(--rule);
+  margin-top: 16px;
+}
+
+.ch-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  font-family: var(--f-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  transition: all 0.15s;
+}
+
+.ch-nav-btn:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: var(--teal-light);
+}
+
+.ch-nav-btn.next {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--warm-white);
+  margin-left: auto;
+}
+
+.ch-nav-btn.next:hover {
+  background: var(--ink-mid);
+  border-color: var(--ink-mid);
+}
+
+.ch-nav-spacer { flex: 1; }
+
+@media (max-width: 860px) {
+  .ch-nav-footer { padding: 24px 28px 40px; }
+}
+
+
+/* ─── TOOLKIT MODAL ───────────────────── */
+.toolkit-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(24,22,15,0.7);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+.toolkit-modal-overlay.open {
+  display: flex;
+}
+.toolkit-modal {
+  background: var(--warm-white);
+  border-radius: 8px;
+  max-width: 560px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+}
+.toolkit-modal-header {
+  background: var(--ink);
+  padding: 28px 32px 24px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.tm-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tm-wordmark {
+  font-family: var(--f-sans);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  display: flex;
+  gap: 0.3em;
+}
+.tm-wordmark span:first-child { font-weight: 200; color: rgba(255,255,255,0.85); }
+.tm-wordmark span:last-child  { font-weight: 700; color: #fff; }
+.tm-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255,255,255,0.4);
+  font-size: 20px;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.15s;
+}
+.tm-close:hover { color: #fff; }
+.toolkit-modal-title {
+  font-family: var(--f-sans);
+  font-weight: 200;
+  font-size: 22px;
+  color: rgba(255,255,255,0.88);
+  margin-top: 16px;
+}
+.toolkit-modal-title strong { font-weight: 700; color: var(--teal); }
+.toolkit-modal-body {
+  padding: 28px 32px 32px;
+}
+.tm-tag {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 16px;
+}
+.tm-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.tm-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 16px;
+  background: var(--paper);
+  border-radius: 4px;
+  border-left: 3px solid var(--teal);
+}
+.tm-item-num {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--teal);
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.tm-item-text {
+  font-size: 13.5px;
+  color: var(--ink);
+  font-weight: 500;
+  line-height: 1.4;
+}
+.tm-footer {
+  display: flex;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+}
+.tm-print-btn {
+  background: var(--ink);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-family: var(--f-sans);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.tm-print-btn:hover { background: var(--ink-mid); }
+.tm-copy-btn {
+  background: none;
+  color: var(--text-soft);
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  font-family: var(--f-sans);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+.tm-copy-btn:hover { border-color: var(--teal); color: var(--teal); }
+
+
+/* ─── COVER LESS BOXES ────────────────── */
+.less-box {
+  width: 64px;
+  height: 64px;
+  border: 1px solid rgba(93,181,163,0.3);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  transition: all 0.25s ease;
+  position: relative;
+  flex-direction: column;
+  gap: 0;
+}
+.less-box:hover {
+  border-color: var(--teal);
+  background: rgba(93,181,163,0.08);
+}
+.less-box .lb-letter {
+  font-family: var(--f-mono);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: rgba(93,181,163,0.35);
+  transition: all 0.25s;
+}
+.less-box:hover .lb-letter { display: none; }
+.less-box .lb-word {
+  font-family: var(--f-mono);
+  font-size: 8px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--teal);
+  display: none;
+}
+.less-box:hover .lb-word { display: block; }
+
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <svg width="18" height="22" viewBox="0 0 70 90" fill="none">
+          <rect x="0" y="0" width="7" height="90" fill="#ffffff"/>
+          <rect x="22" y="0" width="48" height="90" fill="#ffffff"/>
+        </svg>
+      </div>
+      <div class="logo-text"><span>light</span> <strong>house</strong></div>
+    </div>
+    <nav class="sidebar-chapters">
+      <button class="chapter-btn active" onclick="showPage('cover')">
+        <span class="ch-num">—</span>
+        <span class="ch-label">Cover</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('intro')">
+        <span class="ch-num">00</span>
+        <span class="ch-label">Introduction</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('biases')">
+        <span class="ch-num">01</span>
+        <span class="ch-label">Core Biases</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('experiments')">
+        <span class="ch-num">02</span>
+        <span class="ch-label">Key Experiments</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('applications')">
+        <span class="ch-num">03</span>
+        <span class="ch-label">Applications</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('mistakes')">
+        <span class="ch-num">04</span>
+        <span class="ch-label">Common Mistakes</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('toolkit')">
+        <span class="ch-num">05</span>
+        <span class="ch-label">Toolkit</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('casestudies')">
+        <span class="ch-num">06</span>
+        <span class="ch-label">Case Studies</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('quiz')">
+        <span class="ch-num">07</span>
+        <span class="ch-label">Self-Assessment</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('cheatsheet')">
+        <span class="ch-num">08</span>
+        <span class="ch-label">Cheat Sheet</span>
+      </button>
+    </nav>
+    <div class="sidebar-progress">
+      <div class="progress-label">Progress</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-text" id="progressText">0 / 9 chapters</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- COVER PAGE -->
+    <div id="page-cover" class="page active">
+      <div style="background: var(--ink); min-height: 100vh; display: flex; flex-direction: column;">
+        <div class="cover-body">
+          <div class="cover-tag">A light house publication</div>
+          <div class="cover-title">
+            The Decision<br>
+            <em>Playbook</em>
+          </div>
+          <div class="cover-subtitle">Why individuals decide the way they do — and what organisations inherit from it.</div>
+          <button class="cover-start-btn" onclick="showPage('intro')">
+            Begin reading
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <!-- LESS hover boxes -->
+          <div style="display:flex;gap:10px;margin-top:48px;">
+            <div class="less-box"><span class="lb-letter">L</span><span class="lb-word">Lighten</span></div>
+            <div class="less-box"><span class="lb-letter">E</span><span class="lb-word">Eliminate</span></div>
+            <div class="less-box"><span class="lb-letter">S</span><span class="lb-word">Simplify</span></div>
+            <div class="less-box"><span class="lb-letter">S</span><span class="lb-word">Sharpen</span></div>
+          </div>
+          <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.16em;color:rgba(255,255,255,0.25);margin-top:12px;line-height:1.8;margin-bottom:48px;">LESS — Lighten, Eliminate, Simplify, Sharpen.<br>The light house framework for organisational subtraction.</div>
+
+          <div class="cover-stats">
+            <div class="c-stat">
+              <div class="c-stat-num">16</div>
+              <div class="c-stat-label">Core biases</div>
+            </div>
+            <div class="c-stat">
+              <div class="c-stat-num">8</div>
+              <div class="c-stat-label">Key experiments</div>
+            </div>
+            <div class="c-stat">
+              <div class="c-stat-num">10</div>
+              <div class="c-stat-label">Toolkit strategies</div>
+            </div>
+            <div class="c-stat">
+              <div class="c-stat-num">6</div>
+              <div class="c-stat-label">Case studies</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTRODUCTION -->
+    <div id="page-intro" class="page">
+      <div class="ch-header" data-num="00">
+        <div class="ch-eyebrow">Introduction</div>
+        <div class="ch-title">We don't decide <strong style="color:var(--teal)">rationally.</strong><br>We decide <strong style="color:var(--teal)">predictably.</strong></div>
+        <div class="ch-subtitle">Behavioural economics explains the gap between how we think we decide and how we actually do.</div>
+        <div class="ch-meta">Chapter 00</div>
+      </div>
+
+
+
+      <div class="content">
+
+        <div class="intro-grid">
+          <div class="intro-card">
+            <div class="ic-label">The old model</div>
+            <div class="ic-title">Classical economics assumed rational actors</div>
+            <div class="ic-body">
+              Traditional economics assumed humans weigh costs and benefits, process information objectively, and make decisions that maximise their self-interest. Meet <strong>Homo economicus</strong> — rational, consistent, and entirely fictional.
+              <br><br>
+              <em style="color:var(--text-soft); font-size:13px; display:block; padding: 14px 0 0; border-top: 1px solid var(--rule);">"Man is a rational animal — so at least I have been told."<br><span style="color:var(--text-soft); font-size:12px; font-style:normal;">— Bertrand Russell</span></em>
+            </div>
+          </div>
+          <div class="intro-card">
+            <div class="ic-label">The new model</div>
+            <div class="ic-title">Behavioural economics maps how humans actually decide</div>
+            <div class="ic-body">
+              Humans use mental shortcuts called <strong>heuristics</strong>. They are swayed by emotion, context, and framing. They make consistent, predictable errors called <strong>cognitive biases</strong>.
+              <br><br>
+              Behavioural economics — pioneered by Kahneman, Tversky, and Thaler — maps these patterns. Once you see them, you can design around them, exploit them ethically, or avoid them in yourself.
+              <br><br>
+              <span style="font-family:var(--f-mono); font-size:10px; color:var(--teal); letter-spacing:0.1em;">Predictably irrational · Systematically wrong · Correctable</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider">
+          <span class="sd-label">The founding idea</span>
+          <div class="sd-line"></div>
+        </div>
+
+        <div class="systems-grid">
+          <div class="sys-card s1">
+            <div class="sys-big-num">1</div>
+            <div class="sys-tag">System 1 — Fast</div>
+            <div class="sys-name">Automatic. Intuitive. Emotional.</div>
+            <div class="sys-desc">Runs constantly in the background. Jumps to conclusions using pattern recognition. Prone to systematic errors but extraordinarily efficient. This is your brain on autopilot — which is most of the time.</div>
+            <div class="sys-examples">Examples: Reading a face · Driving a familiar route · Snap judgements about people · Recoiling from a loud noise</div>
+          </div>
+          <div class="sys-card s2">
+            <div class="sys-big-num">2</div>
+            <div class="sys-tag">System 2 — Slow</div>
+            <div class="sys-name">Deliberate. Effortful. Logical.</div>
+            <div class="sys-desc">Lazy by nature — it only engages when System 1 gets stuck. Consumes significant energy. This is your brain actually thinking — which happens far less often than you believe.</div>
+            <div class="sys-examples">Examples: Solving a maths problem · Comparing mortgage rates · Parallel parking · Learning a new skill</div>
+          </div>
+        </div>
+
+
+        <div class="section-divider">
+          <span class="sd-label">How to read this playbook</span>
+          <div class="sd-line"></div>
+        </div>
+
+        <div style="margin-bottom:40px;">
+          <p style="font-size:13.5px;color:var(--text-soft);line-height:1.7;margin-bottom:16px;">This document uses a consistent colour system throughout. Each colour carries a single meaning — learn it once here and it will guide you through every chapter.</p>
+          <div style="display:flex;gap:0;border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;">
+            <div style="flex:1;padding:20px 22px;background:var(--teal-light);border-right:1px solid var(--rule);">
+              <div style="width:24px;height:3px;background:var(--teal);border-radius:2px;margin-bottom:10px;"></div>
+              <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--teal);margin-bottom:8px;">Insight</div>
+              <div style="font-size:12px;color:var(--text-soft);line-height:1.5;">Key concepts, bias names, things worth remembering</div>
+            </div>
+            <div style="flex:1;padding:20px 22px;background:var(--gold-light);border-right:1px solid var(--rule);">
+              <div style="width:24px;height:3px;background:var(--gold);border-radius:2px;margin-bottom:10px;"></div>
+              <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Action</div>
+              <div style="font-size:12px;color:var(--text-soft);line-height:1.5;">Fixes, tools, applications — things to act on</div>
+            </div>
+            <div style="flex:1;padding:20px 22px;background:var(--red-light);border-right:1px solid var(--rule);">
+              <div style="width:24px;height:3px;background:var(--red);border-radius:2px;margin-bottom:10px;"></div>
+              <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--red);margin-bottom:8px;">Caution</div>
+              <div style="font-size:12px;color:var(--text-soft);line-height:1.5;">Traps, mistakes, wrong answers — things to watch for</div>
+            </div>
+            <div style="flex:1;padding:20px 22px;background:var(--violet-light);">
+              <div style="width:24px;height:3px;background:var(--violet);border-radius:2px;margin-bottom:10px;"></div>
+              <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--violet);margin-bottom:8px;">Evidence</div>
+              <div style="font-size:12px;color:var(--text-soft);line-height:1.5;">Experiment findings, case study results, proven principles</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider">
+          <span class="sd-label">The stakes</span>
+          <div class="sd-line"></div>
+        </div>
+
+        <div class="intro-grid">
+          <div class="intro-card">
+            <div class="ic-label">In everyday life</div>
+            <div class="ic-body" style="display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;gap:12px;align-items:flex-start;padding-bottom:10px;border-bottom:1px solid var(--rule)"><div style="width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px"></div><span style="color:var(--text-soft)">We save too little for retirement — even when we genuinely intend to save more</span></div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding-bottom:10px;border-bottom:1px solid var(--rule)"><div style="width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px"></div><span>We buy things we don't need because they are "on sale"</span></div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding-bottom:10px;border-bottom:1px solid var(--rule)"><div style="width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px"></div><span>Doctors and judges make measurably worse decisions when tired or hungry</span></div>
+              <div style="display:flex;gap:12px;align-items:flex-start;padding-bottom:10px;border-bottom:1px solid var(--rule)"><div style="width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px"></div><span>Investors panic-sell at exactly the wrong moment — every cycle</span></div>
+              <div style="display:flex;gap:12px;align-items:flex-start"><div style="width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px"></div><span>Voters choose candidates based on name order on the ballot</span></div>
+            </div>
+          </div>
+          <div class="intro-card">
+            <div class="ic-label">The opportunity</div>
+            <div class="ic-title">Once you see the pattern, you can design around it</div>
+            <div class="ic-body">
+              The insight of behavioural economics is not that humans are stupid. It is that our errors are <strong>predictable and systematic</strong> — which means they can be anticipated, designed around, and corrected.
+              <br><br>
+              Understanding these patterns lets you build better products, make smarter personal decisions, and design environments where people naturally do what is good for them.
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider">
+          <span class="sd-label">The pioneers</span>
+          <div class="sd-line"></div>
+        </div>
+
+        <div class="pioneers-grid">
+          <div class="pioneer-card">
+            <div class="p-role">Founders</div>
+            <div class="p-name">Kahneman &amp; Tversky</div>
+            <div class="p-note">Founded the field together. Developed Prospect Theory. Kahneman received the Nobel Prize in 2002. Tversky died in 1996 — Nobel Prizes are not awarded posthumously.</div>
+          </div>
+          <div class="pioneer-card">
+            <div class="p-role">Nobel 2017</div>
+            <div class="p-name">Richard Thaler</div>
+            <div class="p-note">Developed nudge theory and choice architecture. Co-authored "Nudge" with Cass Sunstein. Created the SMarT pension programme.</div>
+          </div>
+          <div class="pioneer-card">
+            <div class="p-role">Populariser</div>
+            <div class="p-name">Dan Ariely</div>
+            <div class="p-note">Author of "Predictably Irrational." Made behavioural economics accessible through vivid experiments and storytelling. Professor at Duke.</div>
+          </div>
+          <div class="pioneer-card">
+            <div class="p-role">Influence</div>
+            <div class="p-name">Robert Cialdini</div>
+            <div class="p-note">Author of "Influence." His six principles (reciprocity, commitment, social proof, authority, liking, scarcity) underpin much of modern marketing.</div>
+          </div>
+        </div>
+
+
+
+      </div>
+
+        <div class="ch-nav-footer">
+          <button class="ch-nav-btn" onclick="showPage('cover')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Cover
+          </button>
+          <div class="ch-nav-spacer"></div>
+          <button class="ch-nav-btn next" onclick="showPage('biases')">
+            Core Biases
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+    </div>
+
+    <!-- BIASES -->
+    <div id="page-biases" class="page">
+      <div class="ch-header" data-num="01">
+        <div class="ch-eyebrow">Chapter 01</div>
+        <div class="ch-title">The biases that <strong>run your life</strong></div>
+        <div class="ch-subtitle">16 cognitive biases across 4 categories. Click any card to reveal the real-world example.</div>
+        <div class="ch-meta">16 biases · 4 categories</div>
+      </div>
+      <div class="content">
+
+        <div class="category-header">
+          <div class="cat-pill teal">Perception &amp; Framing</div>
+          <div class="cat-line"></div>
+        </div>
+        <div class="bias-grid">
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Anchoring Bias</div></div>
+            <div class="bias-preview">The first number you hear disproportionately influences all subsequent judgements — even when it's irrelevant.</div>
+            <div class="bias-expand-hint" id="bh-1" onclick="toggleBiasById(1)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-1"><div class="bd-label">Real-world example</div><div class="bd-example">A $999 jacket makes the $350 one feel reasonable. Salary negotiations are won by whoever names a number first. The first price you see sets the "anchor" for everything that follows.</div></div>
+          </div>
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Framing Effect</div></div>
+            <div class="bias-preview">Identical information presented differently leads to different decisions. Wording changes choices as powerfully as the facts.</div>
+            <div class="bias-expand-hint" id="bh-2" onclick="toggleBiasById(2)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-2"><div class="bd-label">Real-world example</div><div class="bd-example">"90% fat free" feels healthier than "10% fat." A "$5 credit card surcharge" feels worse than losing a "$5 cash discount." Same reality, different frames, different decisions.</div></div>
+          </div>
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Availability Heuristic</div></div>
+            <div class="bias-preview">We judge the likelihood of events by how easily examples come to mind — not by actual statistics.</div>
+            <div class="bias-expand-hint" id="bh-3" onclick="toggleBiasById(3)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-3"><div class="bd-label">Real-world example</div><div class="bd-example">After shark attack news, people fear sharks more than car accidents — despite cars being far more deadly by orders of magnitude. Vivid and recent events distort our sense of probability.</div></div>
+          </div>
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Representativeness</div></div>
+            <div class="bias-preview">We judge probability by how much something resembles our mental prototype, ignoring base rates entirely.</div>
+            <div class="bias-expand-hint" id="bh-4" onclick="toggleBiasById(4)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-4"><div class="bd-label">Real-world example</div><div class="bd-example">We assume a quiet, bookish person is more likely a librarian than a truck driver — ignoring that truck drivers vastly outnumber librarians. The stereotype overrides the base rate.</div></div>
+          </div>
+        </div>
+
+        <div class="category-header">
+          <div class="cat-pill gold">Losses &amp; Gains</div>
+          <div class="cat-line"></div>
+        </div>
+        <div class="bias-grid">
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Loss Aversion</div></div>
+            <div class="bias-preview">Losses hurt roughly twice as much as equivalent gains feel good. We work harder to avoid losing than to win the same amount.</div>
+            <div class="bias-expand-hint" id="bh-5" onclick="toggleBiasById(5)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-5"><div class="bd-label">Real-world example</div><div class="bd-example">Most people refuse a 50/50 bet to win $150 or lose $100 — even though the expected value is positive. Losing $100 feels worse than winning $150 feels good. Loss aversion is the engine of most bad investment decisions.</div></div>
+          </div>
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Sunk Cost Fallacy</div></div>
+            <div class="bias-preview">We continue investing because of what we've already spent — not because of future value.</div>
+            <div class="bias-expand-hint" id="bh-6" onclick="toggleBiasById(6)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-6"><div class="bd-label">Real-world example</div><div class="bd-example">Staying in a bad film because you paid for the ticket. Holding a crashing stock because of what you originally paid. Staying in a bad relationship because of the years already invested.</div></div>
+          </div>
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Endowment Effect</div></div>
+            <div class="bias-preview">We overvalue things we already own simply because we own them. Ownership creates irrational attachment.</div>
+            <div class="bias-expand-hint" id="bh-7" onclick="toggleBiasById(7)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-7"><div class="bd-label">Real-world example</div><div class="bd-example">People demand roughly twice as much to sell a mug they own as they would pay to buy that exact same mug. Ownership inflates perceived value dramatically and irrationally.</div></div>
+          </div>
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Prospect Theory</div></div>
+            <div class="bias-preview">We value gains and losses relative to a reference point — not in absolute terms. Diminishing sensitivity applies to both.</div>
+            <div class="bias-expand-hint" id="bh-8" onclick="toggleBiasById(8)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-8"><div class="bd-label">Real-world example</div><div class="bd-example">A raise from $50k to $55k feels better than one from $95k to $100k — both are $5k, but the first is proportionally much larger from the reference point.</div></div>
+          </div>
+        </div>
+
+        <div class="category-header">
+          <div class="cat-pill rust">Social &amp; Self</div>
+          <div class="cat-line"></div>
+        </div>
+        <div class="bias-grid">
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Social Proof</div></div>
+            <div class="bias-preview">When uncertain, we look to what others are doing and use it as evidence for the correct behaviour.</div>
+            <div class="bias-expand-hint" id="bh-9" onclick="toggleBiasById(9)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-9"><div class="bd-label">Real-world example</div><div class="bd-example">"Most guests in this hotel reuse their towels" gets significantly more towel reuse than "please save the environment." Telling people what others do is more powerful than moral appeals.</div></div>
+          </div>
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Confirmation Bias</div></div>
+            <div class="bias-preview">We seek, interpret, and remember information that confirms what we already believe.</div>
+            <div class="bias-expand-hint" id="bh-10" onclick="toggleBiasById(10)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-10"><div class="bd-label">Real-world example</div><div class="bd-example">After buying a car you suddenly notice the same model everywhere and feel validated. Before buying, you only read positive reviews and dismissed the negative ones without examining them.</div></div>
+          </div>
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Optimism Bias</div></div>
+            <div class="bias-preview">We overestimate good outcomes for ourselves and underestimate bad ones. Most people believe they're above average at almost everything.</div>
+            <div class="bias-expand-hint" id="bh-11" onclick="toggleBiasById(11)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-11"><div class="bd-label">Real-world example</div><div class="bd-example">80% of drivers rate themselves in the top 30%. Most projects run over budget and over time — in every industry, in every country, in every decade. Optimism bias is universal.</div></div>
+          </div>
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Hindsight Bias</div></div>
+            <div class="bias-preview">After an event occurs, we believe we knew the outcome all along. This prevents honest learning.</div>
+            <div class="bias-expand-hint" id="bh-12" onclick="toggleBiasById(12)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-12"><div class="bd-label">Real-world example</div><div class="bd-example">"I always knew that startup would fail." You invested in it. "I knew the market would crash." You didn't sell before it did. Hindsight rewrites memory to feel like foresight.</div></div>
+          </div>
+        </div>
+
+        <div class="category-header">
+          <div class="cat-pill paper">Time &amp; Choice</div>
+          <div class="cat-line"></div>
+        </div>
+        <div class="bias-grid">
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Present Bias</div></div>
+            <div class="bias-preview">We dramatically overweight immediate rewards compared to future ones. The future self is an abstract stranger.</div>
+            <div class="bias-expand-hint" id="bh-13" onclick="toggleBiasById(13)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-13"><div class="bd-label">Real-world example</div><div class="bd-example">You know you should go to the gym tomorrow, save for retirement next month, start the diet next week — every week, forever. The future you feels unreal. Only now feels real.</div></div>
+          </div>
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Status Quo Bias</div></div>
+            <div class="bias-preview">We strongly prefer things to remain as they are. Change requires effort; inertia is the path of least resistance.</div>
+            <div class="bias-expand-hint" id="bh-14" onclick="toggleBiasById(14)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-14"><div class="bd-label">Real-world example</div><div class="bd-example">Most people never change their energy supplier, pension fund, or insurance — even when materially better options are available and easy to access. The default wins by default.</div></div>
+          </div>
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Choice Overload</div></div>
+            <div class="bias-preview">Too many options leads to decision paralysis and often no decision at all. Abundance paradoxically reduces choosing.</div>
+            <div class="bias-expand-hint" id="bh-15" onclick="toggleBiasById(15)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-15"><div class="bd-label">Real-world example</div><div class="bd-example">A supermarket offering 24 jam varieties sold far less than one offering 6 — despite the larger range appearing more appealing at first glance. More choice is not always better.</div></div>
+          </div>
+          <div class="bias-card">
+            <div class="bias-card-header"><div class="bias-name">Halo Effect</div></div>
+            <div class="bias-preview">One positive trait colours our entire perception of a person or product. A single quality contaminates all other assessments.</div>
+            <div class="bias-expand-hint" id="bh-16" onclick="toggleBiasById(16)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example</div>
+            <div class="bias-detail" id="bd-16"><div class="bd-label">Real-world example</div><div class="bd-example">Attractive people are automatically perceived as smarter, kinder, and more competent. Apple's iPod halo sold Macs. One great product made every Apple product seem better than it was.</div></div>
+          </div>
+        </div>
+
+      </div>
+
+        <div class="ch-nav-footer">
+          <button class="ch-nav-btn" onclick="showPage('intro')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Introduction
+          </button>
+          <div class="ch-nav-spacer"></div>
+          <button class="ch-nav-btn next" onclick="showPage('experiments')">
+            Key Experiments
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+    </div>
+
+    <!-- EXPERIMENTS -->
+    <div id="page-experiments" class="page">
+      <div class="ch-header" data-num="02">
+        <div class="ch-eyebrow">Chapter 02</div>
+        <div class="ch-title">8 studies that <strong>changed everything</strong></div>
+        <div class="ch-subtitle">8 landmark experiments. Click each to expand the full findings.</div>
+        <div class="ch-meta">8 experiments</div>
+      </div>
+      <div class="content">
+
+        <div class="exp-row" onclick="toggleExp(this)">
+          <div class="exp-header">
+            <div class="exp-num-block">01</div>
+            <div class="exp-head-content">
+              <div class="exp-researcher">Iyengar &amp; Lepper, 2000 — Columbia</div>
+              <div class="exp-title">The Jam Study — Choice Overload</div>
+            </div>
+            <div class="exp-toggle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+          </div>
+          <div class="exp-body">
+            <div class="exp-col">
+              <div class="exp-col-label">What they did</div>
+              <div class="exp-text">Set up two supermarket tasting stations — one with 24 flavours of jam, one with 6. Measured how many people stopped, tasted, and bought. The larger display attracted more visitors. The smaller display sold far more.</div>
+            </div>
+            <div class="exp-col">
+              <div class="exp-col-label">What it proved</div>
+              <div class="exp-text">The 6-jam display converted buyers at 10x the rate of the 24-jam display. More choice leads to less action. Choice overload is real, measurable, and costly in business — and in life.</div>
+              <div class="exp-tags"><span class="exp-tag">Choice overload</span><span class="exp-tag">Friction</span><span class="exp-tag">Decision paralysis</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="exp-row" onclick="toggleExp(this)">
+          <div class="exp-header">
+            <div class="exp-num-block">02</div>
+            <div class="exp-head-content">
+              <div class="exp-researcher">Güth, Schmittberger &amp; Schwarze, 1982</div>
+              <div class="exp-title">The Ultimatum Game — Fairness over Logic</div>
+            </div>
+            <div class="exp-toggle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+          </div>
+          <div class="exp-body">
+            <div class="exp-col">
+              <div class="exp-col-label">What they did</div>
+              <div class="exp-text">Player A is given $100 and can offer any split to Player B. Player B can accept (both get the money) or reject (both get nothing). Rational players should accept any offer — any money beats nothing.</div>
+            </div>
+            <div class="exp-col">
+              <div class="exp-col-label">What it proved</div>
+              <div class="exp-text">Offers below 30% were regularly rejected. People would rather lose money than accept an unfair deal. Fairness overrides self-interest. Humans are not the rational agents classical economics assumed.</div>
+              <div class="exp-tags"><span class="exp-tag">Fairness</span><span class="exp-tag">Loss aversion</span><span class="exp-tag">Social norms</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="exp-row" onclick="toggleExp(this)">
+          <div class="exp-header">
+            <div class="exp-num-block">03</div>
+            <div class="exp-head-content">
+              <div class="exp-researcher">Johnson &amp; Goldstein, 2003</div>
+              <div class="exp-title">The Organ Donor Default — Default Power</div>
+            </div>
+            <div class="exp-toggle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+          </div>
+          <div class="exp-body">
+            <div class="exp-col">
+              <div class="exp-col-label">What they did</div>
+              <div class="exp-text">Compared organ donation rates across European countries with "opt-in" vs "opt-out" systems. Same populations. Different defaults. Opt-in: you must sign up. Opt-out: you are enrolled unless you actively refuse.</div>
+            </div>
+            <div class="exp-col">
+              <div class="exp-col-label">What it proved</div>
+              <div class="exp-text">Opt-in countries: ~12% participation. Opt-out countries: ~97% participation. The default — not personal values — determines life-or-death decisions for millions. This is the foundational nudge study.</div>
+              <div class="exp-tags"><span class="exp-tag">Status quo bias</span><span class="exp-tag">Default power</span><span class="exp-tag">Nudge theory</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="exp-row" onclick="toggleExp(this)">
+          <div class="exp-header">
+            <div class="exp-num-block">04</div>
+            <div class="exp-head-content">
+              <div class="exp-researcher">Kahneman &amp; Tversky, 1979</div>
+              <div class="exp-title">The Asian Disease Problem — Framing</div>
+            </div>
+            <div class="exp-toggle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+          </div>
+          <div class="exp-body">
+            <div class="exp-col">
+              <div class="exp-col-label">What they did</div>
+              <div class="exp-text">Participants chose between two treatments for a disease that would kill 600. Framing A: "saves 200 lives" vs "⅓ chance of saving all, ⅔ chance of saving none." Framing B: "400 die" vs "⅓ chance no one dies, ⅔ chance 600 die."</div>
+            </div>
+            <div class="exp-col">
+              <div class="exp-col-label">What it proved</div>
+              <div class="exp-text">When framed as lives saved, participants chose certainty. When framed as lives lost, they became risk-seeking. Identical outcomes. Opposite decisions. Framing is one of the most powerful forces in all of decision-making.</div>
+              <div class="exp-tags"><span class="exp-tag">Framing</span><span class="exp-tag">Loss aversion</span><span class="exp-tag">Risk perception</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="exp-row" onclick="toggleExp(this)">
+          <div class="exp-header">
+            <div class="exp-num-block">05</div>
+            <div class="exp-head-content">
+              <div class="exp-researcher">Ariely, Loewenstein &amp; Prelec, 2003 — MIT</div>
+              <div class="exp-title">Social Security Anchoring</div>
+            </div>
+            <div class="exp-toggle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+          </div>
+          <div class="exp-body">
+            <div class="exp-col">
+              <div class="exp-col-label">What they did</div>
+              <div class="exp-text">Students wrote down the last two digits of their Social Security number, then bid on items including wine and chocolates. They were first asked whether they would pay that amount, then their maximum price.</div>
+            </div>
+            <div class="exp-col">
+              <div class="exp-col-label">What it proved</div>
+              <div class="exp-text">Students with high SSN endings bid 60–120% more than those with low endings. A completely random, irrelevant number determined willingness to pay. Anchoring affects even experts on their home turf.</div>
+              <div class="exp-tags"><span class="exp-tag">Anchoring</span><span class="exp-tag">Arbitrary coherence</span><span class="exp-tag">Pricing</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="exp-row" onclick="toggleExp(this)">
+          <div class="exp-header">
+            <div class="exp-num-block">06</div>
+            <div class="exp-head-content">
+              <div class="exp-researcher">Thaler &amp; Johnson, 1990</div>
+              <div class="exp-title">Mental Accounting — Money Isn't Fungible</div>
+            </div>
+            <div class="exp-toggle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+          </div>
+          <div class="exp-body">
+            <div class="exp-col">
+              <div class="exp-col-label">What they did</div>
+              <div class="exp-text">Participants were given hypothetical scenarios involving money won at a casino vs money earned. They were asked how they would spend it, and how freely. The source of the money was varied while the amounts were held constant.</div>
+            </div>
+            <div class="exp-col">
+              <div class="exp-col-label">What it proved</div>
+              <div class="exp-text">People spent "found" money far more freely than earned money, despite identical amounts. We treat money differently based on its source. Financial decisions are deeply irrational — and predictably so.</div>
+              <div class="exp-tags"><span class="exp-tag">Mental accounting</span><span class="exp-tag">House money</span><span class="exp-tag">Windfall</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="exp-row" onclick="toggleExp(this)">
+          <div class="exp-header">
+            <div class="exp-num-block">07</div>
+            <div class="exp-head-content">
+              <div class="exp-researcher">HMRC Behavioural Insights Team, 2012</div>
+              <div class="exp-title">Tax Letters &amp; Social Norms</div>
+            </div>
+            <div class="exp-toggle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+          </div>
+          <div class="exp-body">
+            <div class="exp-col">
+              <div class="exp-col-label">What they did</div>
+              <div class="exp-text">Tested different versions of HMRC tax reminder letters. The control was a standard reminder. Test letters added one sentence: "9 out of 10 people in your area pay their tax on time." Sent to millions of late payers.</div>
+            </div>
+            <div class="exp-col">
+              <div class="exp-col-label">What it proved</div>
+              <div class="exp-text">The social norm letter significantly increased on-time payments. The intervention cost essentially nothing. Generated hundreds of millions in earlier tax collection. One sentence beat elaborate financial incentives.</div>
+              <div class="exp-tags"><span class="exp-tag">Social norms</span><span class="exp-tag">Nudge</span><span class="exp-tag">Policy design</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="exp-row" onclick="toggleExp(this)">
+          <div class="exp-header">
+            <div class="exp-num-block">08</div>
+            <div class="exp-head-content">
+              <div class="exp-researcher">Milgram, 1963 — Yale</div>
+              <div class="exp-title">Authority Obedience — Context Overrides Character</div>
+            </div>
+            <div class="exp-toggle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+          </div>
+          <div class="exp-body">
+            <div class="exp-col">
+              <div class="exp-col-label">What they did</div>
+              <div class="exp-text">Participants were told to deliver electric shocks to a "learner" when they gave wrong answers. An authority figure in a lab coat instructed them to continue. The shocks were fake; the "learner" was an actor.</div>
+            </div>
+            <div class="exp-col">
+              <div class="exp-col-label">What it proved</div>
+              <div class="exp-text">65% of participants delivered what they believed were dangerous shocks when instructed by authority. Situation and context override personal character and values far more than we believe. This is the most important finding in all of social psychology.</div>
+              <div class="exp-tags"><span class="exp-tag">Authority bias</span><span class="exp-tag">Situation vs character</span><span class="exp-tag">Social compliance</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+        <div class="ch-nav-footer">
+          <button class="ch-nav-btn" onclick="showPage('biases')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Core Biases
+          </button>
+          <div class="ch-nav-spacer"></div>
+          <button class="ch-nav-btn next" onclick="showPage('applications')">
+            Applications
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+    </div>
+
+    <!-- APPLICATIONS -->
+    <div id="page-applications" class="page">
+      <div class="ch-header" data-num="03">
+        <div class="ch-eyebrow">Chapter 03</div>
+        <div class="ch-title">Putting it to <strong>work</strong></div>
+        <div class="ch-subtitle">Practical applications across three domains. Select a tab to explore.</div>
+        <div class="ch-meta">3 domains · 15 applications</div>
+      </div>
+      <div class="content">
+        <div class="app-tabs">
+          <button class="app-tab active" onclick="showAppTab('personal', this)">Personal decisions</button>
+          <button class="app-tab" onclick="showAppTab('business', this)">Business &amp; marketing</button>
+          <button class="app-tab" onclick="showAppTab('finance', this)">Finance &amp; investing</button>
+        </div>
+
+        <div id="app-personal" class="app-panel active">
+          <div class="tip-card"><div class="tip-num">01</div><div class="tip-name">Design your environment before the decision</div><div class="tip-body">Put healthy food at eye level, remove junk from visible spaces. Keep your phone out of the bedroom. Place your gym bag by the door. Your environment makes most of your decisions before you consciously engage.</div><div class="tip-footer">Biases used: Status quo bias · Friction · Defaults</div></div>
+          <div class="tip-card"><div class="tip-num">02</div><div class="tip-name">Use commitment devices for important habits</div><div class="tip-body">Lock in future good behaviour before temptation arrives. Automate savings on payday. Book gym sessions in advance. Write your goals publicly. Your rational present self constrains your irrational future self.</div><div class="tip-footer">Biases used: Present bias · Commitment &amp; consistency</div></div>
+          <div class="tip-card"><div class="tip-num">03</div><div class="tip-name">Apply the 48-hour cooling-off rule to purchases</div><div class="tip-body">Before any significant purchase, wait 48 hours. The emotional drive fades reliably. The rational assessment becomes clearer without effort. Most impulse purchases are abandoned after a cooling period.</div><div class="tip-footer">Biases used: Present bias · Emotional override · Loss aversion</div></div>
+          <div class="tip-card"><div class="tip-num">04</div><div class="tip-name">Use the 10-10-10 rule for important decisions</div><div class="tip-body">Ask: how will I feel about this in 10 minutes? 10 months? 10 years? Most good decisions look stable across timescales. Most impulsive ones only look good in the 10-minute window.</div><div class="tip-footer">Biases used: Present bias · Temporal discounting</div></div>
+          <div class="tip-card"><div class="tip-num">05</div><div class="tip-name">Audit your default settings quarterly</div><div class="tip-body">Review your pension fund, phone notifications, subscription defaults, and supermarket habits. Who designed these defaults? Not you. Someone with different incentives. Reclaim intentional control annually.</div><div class="tip-footer">Biases used: Status quo bias · Inertia</div></div>
+        </div>
+
+        <div id="app-business" class="app-panel">
+          <div class="tip-card"><div class="tip-num">01</div><div class="tip-name">Make the right choice the default</div><div class="tip-body">Default to the option you want customers to choose. Pre-tick the better insurance tier. Make the more sustainable shipping option the default. Opt-out vastly outperforms opt-in for almost every behaviour.</div><div class="tip-footer">Biases used: Status quo bias · Default power · Inertia</div></div>
+          <div class="tip-card"><div class="tip-num">02</div><div class="tip-name">Use social proof precisely and specifically</div><div class="tip-body">"Most popular" labels drive sales. "9 out of 10 customers choose" outperforms vague endorsements. The more specific and geographically relevant the social proof, the stronger its effect.</div><div class="tip-footer">Biases used: Social proof · Uncertainty · Conformity</div></div>
+          <div class="tip-card"><div class="tip-num">03</div><div class="tip-name">Reduce choices at the decision point</div><div class="tip-body">Three pricing tiers outperform seven. A recommended option reduces decision fatigue. Paradox of choice is real — fewer options drive more conversions. Guide the customer rather than overwhelming them.</div><div class="tip-footer">Biases used: Choice overload · Decision fatigue</div></div>
+          <div class="tip-card"><div class="tip-num">04</div><div class="tip-name">Anchor high, then discount</div><div class="tip-body">Set the reference price high and prominently visible. Crossed-out original prices work because the higher number anchors perceived value. Anchoring shapes willingness to pay more than any other pricing lever.</div><div class="tip-footer">Biases used: Anchoring · Reference points · Loss aversion</div></div>
+          <div class="tip-card"><div class="tip-num">05</div><div class="tip-name">Frame losses, not gains, for high-priority actions</div><div class="tip-body">"Don't miss out on $200 in savings" outperforms "Earn $200 in savings." Losses motivate more than equivalent gains in almost all contexts. Loss-framed messages drive urgency more effectively.</div><div class="tip-footer">Biases used: Loss aversion · Framing · Prospect theory</div></div>
+        </div>
+
+        <div id="app-finance" class="app-panel">
+          <div class="tip-card"><div class="tip-num">01</div><div class="tip-name">Automate everything to defeat present bias</div><div class="tip-body">Direct debit your savings on payday before you see the money. Auto-invest into index funds monthly. Once automated, you never have to make the virtuous decision again — and can never sabotage it impulsively.</div><div class="tip-footer">Biases used: Present bias · Inertia · Mental accounting</div></div>
+          <div class="tip-card"><div class="tip-num">02</div><div class="tip-name">Create a decision journal for trades and investments</div><div class="tip-body">Before entering any position, write: what am I buying, why, what price would prove me wrong, when will I review. Read it back later. The gap between your predictions and reality will be humbling and instructive.</div><div class="tip-footer">Biases used: Hindsight bias · Overconfidence · Confirmation bias</div></div>
+          <div class="tip-card"><div class="tip-num">03</div><div class="tip-name">Use the "would I buy this today?" test</div><div class="tip-body">When evaluating any holding, ask: if I had cash and no position, would I buy this at this price today? If no, sell. Ignore what you paid. The sunk cost is irrelevant. Only the future matters.</div><div class="tip-footer">Biases used: Sunk cost · Endowment effect · Loss aversion</div></div>
+          <div class="tip-card"><div class="tip-num">04</div><div class="tip-name">Dollar-cost average to remove timing decisions</div><div class="tip-body">Invest fixed amounts regularly regardless of market conditions. Removes the "perfect time to buy" fallacy entirely. Counters market-timing hubris. Systematically buys more when prices are low and less when high.</div><div class="tip-footer">Biases used: Overconfidence · Anchoring · Timing illusion</div></div>
+          <div class="tip-card"><div class="tip-num">05</div><div class="tip-name">Treat all money identically regardless of source</div><div class="tip-body">A tax refund, bonus, or windfall is the same as earned income. Before spending any windfall, apply the same test you would apply to core salary. Mental accounting leads to predictably poor windfall decisions.</div><div class="tip-footer">Biases used: Mental accounting · House money effect</div></div>
+        </div>
+      </div>
+
+        <div class="ch-nav-footer">
+          <button class="ch-nav-btn" onclick="showPage('experiments')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Key Experiments
+          </button>
+          <div class="ch-nav-spacer"></div>
+          <button class="ch-nav-btn next" onclick="showPage('mistakes')">
+            Common Mistakes
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+    </div>
+
+    <!-- MISTAKES -->
+    <div id="page-mistakes" class="page">
+      <div class="ch-header" data-num="04">
+        <div class="ch-eyebrow">Chapter 04</div>
+        <div class="ch-title">Traps you'll <strong>fall into anyway</strong></div>
+        <div class="ch-subtitle">7 common mistakes — each with a concrete fix. Click to expand.</div>
+        <div class="ch-meta">7 mistakes · with fixes</div>
+      </div>
+      <div class="content">
+
+        <div class="mistake-card" onclick="toggleMistake(this)">
+          <div class="mistake-header">
+            <div class="mistake-idx">01</div>
+            <div class="mistake-head-content">
+              <div class="mistake-name">Thinking you're immune to bias</div>
+              <div class="mistake-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+            </div>
+          </div>
+          <div class="mistake-body">
+            <div class="mistake-text-col"><div class="exp-col-label">The trap</div><div class="mf-text">The "bias blind spot" — believing you are less biased than average — is itself a cognitive bias. Studies consistently show that even people who have just been taught about a specific bias immediately exhibit it. Knowledge alone is not protection.</div></div>
+            <div class="mistake-fix-col"><div class="mf-label">The fix</div><div class="mf-text">Build systems and processes that assume bias. Do not rely on willpower or self-awareness in the moment. Design the decision environment instead of relying on your character to override it.</div></div>
+          </div>
+        </div>
+
+        <div class="mistake-card" onclick="toggleMistake(this)">
+          <div class="mistake-header">
+            <div class="mistake-idx">02</div>
+            <div class="mistake-head-content">
+              <div class="mistake-name">Holding losing investments too long</div>
+              <div class="mistake-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+            </div>
+          </div>
+          <div class="mistake-body">
+            <div class="mistake-text-col"><div class="exp-col-label">The trap</div><div class="mf-text">The endowment effect combined with sunk cost fallacy creates investors who cling to terrible positions. The purchase price is completely irrelevant to future performance. The market does not care what you paid.</div></div>
+            <div class="mistake-fix-col"><div class="mf-label">The fix</div><div class="mf-text">Ask: "Would I buy this today at this price?" If the honest answer is no, sell. Ignore what you paid. The past is gone. Only the future counts. Run this test on every holding quarterly.</div></div>
+          </div>
+        </div>
+
+        <div class="mistake-card" onclick="toggleMistake(this)">
+          <div class="mistake-header">
+            <div class="mistake-idx">03</div>
+            <div class="mistake-head-content">
+              <div class="mistake-name">Overconfidence in your own forecasts</div>
+              <div class="mistake-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+            </div>
+          </div>
+          <div class="mistake-body">
+            <div class="mistake-text-col"><div class="exp-col-label">The trap</div><div class="mf-text">90% confidence intervals from experts contain the right answer only 50% of the time. We are systematically overconfident — particularly in domains where we have some expertise. The more you know, the more confident you become. Often incorrectly.</div></div>
+            <div class="mistake-fix-col"><div class="mf-label">The fix</div><div class="mf-text">Widen your confidence intervals. Actively seek out people who disagree and engage with their arguments seriously rather than dismissing them. Keep a forecast log and check your actual hit rate.</div></div>
+          </div>
+        </div>
+
+        <div class="mistake-card" onclick="toggleMistake(this)">
+          <div class="mistake-header">
+            <div class="mistake-idx">04</div>
+            <div class="mistake-head-content">
+              <div class="mistake-name">Making decisions immediately after consuming news</div>
+              <div class="mistake-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+            </div>
+          </div>
+          <div class="mistake-body">
+            <div class="mistake-text-col"><div class="exp-col-label">The trap</div><div class="mf-text">News is optimised for availability heuristic triggers. Plane crashes, murders, and disasters are vastly overrepresented. Your risk model gets systematically distorted every time you read the news then make a decision.</div></div>
+            <div class="mistake-fix-col"><div class="mf-label">The fix</div><div class="mf-text">Separate information-gathering from decision-making. Never make financial or major life decisions immediately after consuming news media. Create a buffer of at least 24 hours between reading and deciding.</div></div>
+          </div>
+        </div>
+
+        <div class="mistake-card" onclick="toggleMistake(this)">
+          <div class="mistake-header">
+            <div class="mistake-idx">05</div>
+            <div class="mistake-head-content">
+              <div class="mistake-name">Treating a good outcome as proof of a good decision</div>
+              <div class="mistake-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+            </div>
+          </div>
+          <div class="mistake-body">
+            <div class="mistake-text-col"><div class="exp-col-label">The trap</div><div class="mf-text">You can make a terrible decision and get lucky. Hindsight bias then convinces you it was brilliant. Poker players call it "resulting" — judging process quality by outcome quality. This kills honest learning and improves nothing.</div></div>
+            <div class="mistake-fix-col"><div class="mf-label">The fix</div><div class="mf-text">Judge decisions by the process and information available at the time — not the result. Keep a decision journal. Review decisions and outcomes separately, weeks or months apart.</div></div>
+          </div>
+        </div>
+
+        <div class="mistake-card" onclick="toggleMistake(this)">
+          <div class="mistake-header">
+            <div class="mistake-idx">06</div>
+            <div class="mistake-head-content">
+              <div class="mistake-name">Spending windfalls differently than earned income</div>
+              <div class="mistake-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+            </div>
+          </div>
+          <div class="mistake-body">
+            <div class="mistake-text-col"><div class="exp-col-label">The trap</div><div class="mf-text">Mental accounting leads people to spend a tax refund on luxuries but carefully guard the same amount of earned income. The casino effect — gambling winnings feel "free" — bleeds into everyday financial life. Money is money.</div></div>
+            <div class="mistake-fix-col"><div class="mf-label">The fix</div><div class="mf-text">Treat all money identically regardless of source. Before spending any windfall, apply the same decision test you would to core salary. Delay all windfall decisions by at least 48 hours.</div></div>
+          </div>
+        </div>
+
+        <div class="mistake-card" onclick="toggleMistake(this)">
+          <div class="mistake-header">
+            <div class="mistake-idx">07</div>
+            <div class="mistake-head-content">
+              <div class="mistake-name">Not designing your decision environment</div>
+              <div class="mistake-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
+            </div>
+          </div>
+          <div class="mistake-body">
+            <div class="mistake-text-col"><div class="exp-col-label">The trap</div><div class="mf-text">Most people try to overcome biases through willpower at the exact moment of decision. This almost never works sustainably. The cafeteria layout matters more than nutrition education. Environment beats intention, every time.</div></div>
+            <div class="mistake-fix-col"><div class="mf-label">The fix</div><div class="mf-text">Invest effort before, not during. Change defaults, remove friction from good choices, add friction to bad ones. Design your environment deliberately — don't rely on resisting it with willpower you won't have.</div></div>
+          </div>
+        </div>
+
+      </div>
+
+        <div class="ch-nav-footer">
+          <button class="ch-nav-btn" onclick="showPage('applications')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Applications
+          </button>
+          <div class="ch-nav-spacer"></div>
+          <button class="ch-nav-btn next" onclick="showPage('toolkit')">
+            Toolkit
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+    </div>
+
+    <!-- TOOLKIT -->
+    <div id="page-toolkit" class="page">
+      <div class="ch-header" data-num="05">
+        <div class="ch-eyebrow">Chapter 05</div>
+        <div class="ch-title">10 strategies. Use them <strong>today.</strong></div>
+        <div class="ch-subtitle">Engineered interventions — practical tools that work with your biases, not against them.</div>
+        <div class="ch-meta">10 tools</div>
+      </div>
+      <div class="content">
+        <div class="toolkit-grid">
+          <div class="tool-card"><div class="tool-num">Tool 01</div><div class="tool-name">Implementation Intentions</div><div class="tool-desc">Transform vague intentions ("I'll exercise more") into specific if-then plans. Bridges the intention-action gap and removes in-the-moment decision fatigue. The plan decides for you before temptation arrives.</div><div class="tool-how">Write "When [situation X], I will do [behaviour Y]." E.g., "When I sit at my desk Monday morning, I will write for 30 minutes before checking email." Specificity is everything.</div></div>
+          <div class="tool-card"><div class="tool-num">Tool 02</div><div class="tool-name">The 10-10-10 Rule</div><div class="tool-desc">Counter present bias by asking three questions before any significant decision: how will I feel about this in 10 minutes? 10 months? 10 years? Most good decisions look similar across timescales.</div><div class="tool-how">Write down your answers honestly. Decisions that look very different across timescales deserve more scrutiny. Especially useful for emotional decisions made under pressure.</div></div>
+          <div class="tool-card"><div class="tool-num">Tool 03</div><div class="tool-name">The Decision Journal</div><div class="tool-desc">Before important decisions, write down what you're deciding, why, what you predict will happen, and how confident you are. Review past entries regularly. The most powerful calibration tool available.</div><div class="tool-how">Takes 5 minutes per decision. After 3–6 months you will have a clear picture of your actual accuracy versus perceived accuracy. The gap is always humbling. And always useful.</div></div>
+          <div class="tool-card"><div class="tool-num">Tool 04</div><div class="tool-name">Commitment Devices</div><div class="tool-desc">Use your rational present self to constrain your irrational future self. Lock in good behaviour before temptation arrives. The key is that the commitment must be binding — mere intentions do not work.</div><div class="tool-how">Auto-transfer savings on payday. Book morning gym sessions in advance. Delete social media apps and reinstall only during scheduled windows. Make the good choice the automatic choice.</div></div>
+          <div class="tool-card"><div class="tool-num">Tool 05</div><div class="tool-name">Consider the Opposite</div><div class="tool-desc">The single most effective debiasing technique for confirmation bias. Actively generate the strongest possible case against your current position. Assign a devil's advocate for team decisions.</div><div class="tool-how">For any belief or plan, spend 10 minutes writing the best argument against it. In meetings, assign someone to formally argue the opposite. Research shows this alone significantly improves forecast accuracy.</div></div>
+          <div class="tool-card"><div class="tool-num">Tool 06</div><div class="tool-name">Reference Class Forecasting</div><div class="tool-desc">Instead of asking "how long will this take?" ask "how long do projects like this actually take?" Base your estimate on the outside view — not your optimistic inside view.</div><div class="tool-how">Before estimating time or cost for any project, research completion rates and average overruns for comparable projects. Then adjust upward. The answer will feel wrong. It will be more accurate than your estimate.</div></div>
+          <div class="tool-card"><div class="tool-num">Tool 07</div><div class="tool-name">Friction Engineering</div><div class="tool-desc">Add steps to bad habits, remove steps from good ones. The size of the barrier matters more than motivation. One extra step can halve a bad behaviour. One fewer step can double a good one.</div><div class="tool-how">Keep healthy food at eye level, junk food out of sight. Log out of social media. Put your phone charger in another room at night. One fewer click to save. One more click to spend.</div></div>
+          <div class="tool-card"><div class="tool-num">Tool 08</div><div class="tool-name">The Premortem</div><div class="tool-desc">Before launching a project, imagine the failure has already happened. Work backwards to diagnose what went wrong. Forces surfacing of risks that optimism bias suppresses in forward-looking planning.</div><div class="tool-how">"It is 18 months from now. The project failed completely. Write down why." Give each person time to write independently before discussing. Developed by Gary Klein. Used by the best teams in every field.</div></div>
+          <div class="tool-card"><div class="tool-num">Tool 09</div><div class="tool-name">Cooling-Off Periods</div><div class="tool-desc">Deliberately create time between impulse and action for any significant decision. The emotional drive fades reliably. The rational assessment becomes clearer without effort. Time is the cheapest debiasing tool available.</div><div class="tool-how">24 hours for purchases over a set threshold. One week for larger amounts. Remove items from wishlists rather than carts — see if you add them back. Most of the time, you won't.</div></div>
+          <div class="tool-card"><div class="tool-num">Tool 10</div><div class="tool-name">Choice Architecture Audit</div><div class="tool-desc">Regularly review the environment around your most important decisions. Who designed your defaults? Not you — someone with different interests. Reclaim control over the architecture of your own choices.</div><div class="tool-how">Check your pension default fund, phone notifications, supermarket route, browser homepage, and app layouts. Redesign each intentionally. Do this annually — your environment changes, and so should your architecture.</div></div>
+        </div>
+      </div>
+
+        <div class="ch-nav-footer">
+          <button class="ch-nav-btn" onclick="showPage('mistakes')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Common Mistakes
+          </button>
+          <div class="ch-nav-spacer"></div>
+          <button class="ch-nav-btn next" onclick="showPage('casestudies')">
+            Case Studies
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+    </div>
+
+    <!-- CASE STUDIES -->
+    <div id="page-casestudies" class="page">
+      <div class="ch-header" data-num="06">
+        <div class="ch-eyebrow">Chapter 06</div>
+        <div class="ch-title">Behavioural economics <strong>at scale</strong></div>
+        <div class="ch-subtitle">6 real cases where understanding bias created extraordinary results.</div>
+        <div class="ch-meta">6 cases</div>
+      </div>
+      <div class="content">
+
+        <div class="cs-card">
+          <div class="cs-top">
+            <div class="cs-brand">
+              <div><div class="cs-company">Netflix</div><div class="cs-tagline">Default autoplay &amp; choice reduction</div></div>
+              <div class="cs-biases"><div class="cs-bias-pill">Status quo</div><div class="cs-bias-pill">Choice overload</div><div class="cs-bias-pill">Present bias</div></div>
+            </div>
+            <div class="cs-col"><div class="cs-col-label">The behaviour</div><div class="cs-text">Netflix auto-plays the next episode after a short countdown, inverting the default from "choose to continue" to "choose to stop." Its algorithm also narrows a library of 6,000 titles to a curated slate of ~40, solving choice overload at the point of maximum indecision.</div></div>
+            <div class="cs-col"><div class="cs-col-label">The result</div><div class="cs-text">The countdown creates soft friction against quitting. The 10-second window is long enough to feel like a choice, short enough to almost never be exercised. Now an industry standard. Reduced churn by keeping users past the natural "shall I stop?" decision point.</div></div>
+          </div>
+        </div>
+
+        <div class="cs-card">
+          <div class="cs-top">
+            <div class="cs-brand">
+              <div><div class="cs-company">Spotify</div><div class="cs-tagline">Social proof &amp; personalisation anchoring</div></div>
+              <div class="cs-biases"><div class="cs-bias-pill">Anchoring</div><div class="cs-bias-pill">Social proof</div><div class="cs-bias-pill">Identity</div></div>
+            </div>
+            <div class="cs-col"><div class="cs-col-label">The behaviour</div><div class="cs-text">Spotify Wrapped uses your own listening data as an anchor ("you listened to this artist for 47 hours") that feels significant regardless of objective meaning. The specificity of the numbers makes the data feel personal and share-worthy. It triggers identity signalling through social sharing.</div></div>
+            <div class="cs-col"><div class="cs-col-label">The result</div><div class="cs-text">Generated hundreds of millions of organic social media posts annually at near-zero cost. Turned user data review into the largest annual social media event in music. Drives resubscriptions at year-end. The most cost-efficient marketing event in the industry.</div></div>
+          </div>
+        </div>
+
+        <div class="cs-card">
+          <div class="cs-top">
+            <div class="cs-brand">
+              <div><div class="cs-company">Amazon</div><div class="cs-tagline">1-Click, Prime &amp; friction elimination</div></div>
+              <div class="cs-biases"><div class="cs-bias-pill">Sunk cost</div><div class="cs-bias-pill">Friction</div><div class="cs-bias-pill">Anchoring</div></div>
+            </div>
+            <div class="cs-col"><div class="cs-col-label">The behaviour</div><div class="cs-text">Amazon's entire commerce system is engineered around friction elimination. 1-Click removed every checkout barrier. Prime converts shipping cost from a per-decision variable to a sunk cost — once you've paid the annual fee, you buy more to "get your money's worth."</div></div>
+            <div class="cs-col"><div class="cs-col-label">The result</div><div class="cs-text">Prime members spend roughly 4x more annually than non-Prime members. Friction reduction directly increases impulse purchase rates. Over 200 million Prime members worldwide. Prime is the backbone of Amazon's retail dominance — built entirely on behavioural principles.</div></div>
+          </div>
+        </div>
+
+        <div class="cs-card">
+          <div class="cs-top">
+            <div class="cs-brand">
+              <div><div class="cs-company">UK Nudge Unit</div><div class="cs-tagline">Tax letters &amp; social norms</div></div>
+              <div class="cs-biases"><div class="cs-bias-pill">Social proof</div><div class="cs-bias-pill">Norms</div><div class="cs-bias-pill">Loss aversion</div></div>
+            </div>
+            <div class="cs-col"><div class="cs-col-label">The behaviour</div><div class="cs-text">The UK's Behavioural Insights Team tested different versions of HMRC tax reminder letters. Adding one sentence — telling recipients that most people in their area pay their tax on time — increased on-time payments measurably at essentially zero cost.</div></div>
+            <div class="cs-col"><div class="cs-col-label">The result</div><div class="cs-text">Generated hundreds of millions in earlier tax collection. The Nudge Unit's interventions have created over $1 billion in estimated value for the UK government. Now replicated by 200+ governments worldwide. The highest return-on-investment government programme in modern history.</div></div>
+          </div>
+        </div>
+
+        <div class="cs-card">
+          <div class="cs-top">
+            <div class="cs-brand">
+              <div><div class="cs-company">SMarT Plan</div><div class="cs-tagline">Pension savings through commitment design</div></div>
+              <div class="cs-biases"><div class="cs-bias-pill">Present bias</div><div class="cs-bias-pill">Loss aversion</div><div class="cs-bias-pill">Status quo</div></div>
+            </div>
+            <div class="cs-col"><div class="cs-col-label">The behaviour</div><div class="cs-text">Thaler and Benartzi's trial let workers commit to increasing pension contributions with future pay rises — not now. This sidesteps present bias (no immediate sacrifice), loss aversion (never feels like a pay cut), and inertia (auto-enrolled). Three biases, one elegant design.</div></div>
+            <div class="cs-col"><div class="cs-col-label">The result</div><div class="cs-text">Savings rates went from 3.5% to 13.6% over 40 months without compulsion. Now the structural basis for pension auto-enrolment in many countries. UK auto-enrolment has added tens of billions to pension savings since 2012.</div></div>
+          </div>
+        </div>
+
+        <div class="cs-card">
+          <div class="cs-top">
+            <div class="cs-brand">
+              <div><div class="cs-company">Duolingo</div><div class="cs-tagline">Streaks, loss aversion &amp; commitment loops</div></div>
+              <div class="cs-biases"><div class="cs-bias-pill">Loss aversion</div><div class="cs-bias-pill">Endowment</div><div class="cs-bias-pill">Commitment</div></div>
+            </div>
+            <div class="cs-col"><div class="cs-col-label">The behaviour</div><div class="cs-text">Duolingo's streak mechanic is pure loss aversion in product form. Once you have a 30-day streak, the prospect of losing it becomes more motivating than the desire to learn. They even offer "streak freezes" — because protecting a streak is more powerful than building a habit from scratch.</div></div>
+            <div class="cs-col"><div class="cs-col-label">The result</div><div class="cs-text">Users with active streaks show dramatically higher retention than those without. The streak is cited as the app's single most important retention mechanic. 500M+ users. $5B+ valuation. Built largely on behavioural mechanics rather than language-learning quality alone.</div></div>
+          </div>
+        </div>
+
+      </div>
+
+        <div class="ch-nav-footer">
+          <button class="ch-nav-btn" onclick="showPage('toolkit')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Toolkit
+          </button>
+          <div class="ch-nav-spacer"></div>
+          <button class="ch-nav-btn next" onclick="showPage('quiz')">
+            Self-Assessment
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="page-quiz" class="page">
+      <div class="ch-header" data-num="07">
+        <div class="ch-eyebrow">Chapter 07</div>
+        <div class="ch-title">Test your <strong>understanding</strong></div>
+        <div class="ch-subtitle">5 questions to find out which biases you're most susceptible to.</div>
+        <div class="ch-meta">5 questions</div>
+      </div>
+      <div class="content">
+        <div class="quiz-wrapper">
+          <div class="quiz-intro">
+            <div class="quiz-intro-title">Self-Assessment Quiz</div>
+            <div class="quiz-intro-sub">Read each scenario carefully. Choose the answer that describes your instinctive reaction — not the "correct" one.</div>
+          </div>
+
+          <div class="q-progress" id="qProgress">
+            <div class="q-dot current"></div>
+            <div class="q-dot"></div>
+            <div class="q-dot"></div>
+            <div class="q-dot"></div>
+            <div class="q-dot"></div>
+          </div>
+
+          <div id="quizContent">
+
+            <div class="q-card active" id="q1">
+              <div class="q-number">Question 1 of 5</div>
+              <div class="q-text">You've been watching a film for 90 minutes and you're not enjoying it. You paid $20 for the ticket. What do you do?</div>
+              <div class="q-options">
+                <div class="q-option" onclick="answerQ(1, 'wrong', this)"><div class="q-opt-indicator"></div>Stay and watch it to the end — you've already paid</div>
+                <div class="q-option" onclick="answerQ(1, 'correct', this)"><div class="q-opt-indicator"></div>Leave immediately — the ticket price is gone either way</div>
+                <div class="q-option" onclick="answerQ(1, 'wrong', this)"><div class="q-opt-indicator"></div>Stay a bit longer to see if it gets better, then decide</div>
+              </div>
+              <div class="q-feedback correct" id="q1-correct">✓ Correct. The $20 is a sunk cost — it's gone whether you stay or leave. The only relevant question is: will the next 30 minutes be worth your time? The ticket price is irrelevant.</div>
+              <div class="q-feedback wrong" id="q1-wrong">This is <strong>Sunk Cost Fallacy</strong>. The $20 is already spent — staying doesn't recover it. The only question is whether the remaining time is worth the investment. Past costs should never drive future decisions.</div>
+              <button class="q-next-btn" id="q1-next" onclick="nextQ(2)">Next question →</button>
+            </div>
+
+            <div class="q-card" id="q2">
+              <div class="q-number">Question 2 of 5</div>
+              <div class="q-text">A doctor says a surgery has a "90% survival rate." Another says it has a "10% mortality rate." How do you feel about each?</div>
+              <div class="q-options">
+                <div class="q-option" onclick="answerQ(2, 'wrong', this)"><div class="q-opt-indicator"></div>The first option sounds much safer and more reassuring</div>
+                <div class="q-option" onclick="answerQ(2, 'correct', this)"><div class="q-opt-indicator"></div>They're identical statements — I'd feel the same about both</div>
+                <div class="q-option" onclick="answerQ(2, 'wrong', this)"><div class="q-opt-indicator"></div>The second option sounds riskier and more worrying</div>
+              </div>
+              <div class="q-feedback correct" id="q2-correct">✓ Correct. These are mathematically identical statements. Most people instinctively prefer the "90% survival" framing, which demonstrates how powerfully framing alters our perception of identical information.</div>
+              <div class="q-feedback wrong" id="q2-wrong">This is the <strong>Framing Effect</strong>. "90% survival rate" and "10% mortality rate" are mathematically identical. Yet most people perceive one as safer than the other. Framing changes decisions as powerfully as the underlying facts.</div>
+              <button class="q-next-btn" id="q2-next" onclick="nextQ(3)">Next question →</button>
+            </div>
+
+            <div class="q-card" id="q3">
+              <div class="q-number">Question 3 of 5</div>
+              <div class="q-text">A 50/50 coin flip: heads you win $150, tails you lose $100. The expected value is +$25. Do you take the bet?</div>
+              <div class="q-options">
+                <div class="q-option" onclick="answerQ(3, 'correct', this)"><div class="q-opt-indicator"></div>Yes — the expected value is positive, so I take it</div>
+                <div class="q-option" onclick="answerQ(3, 'wrong', this)"><div class="q-opt-indicator"></div>No — losing $100 feels too bad to risk it</div>
+                <div class="q-option" onclick="answerQ(3, 'wrong', this)"><div class="q-opt-indicator"></div>Probably not — it depends on my mood</div>
+              </div>
+              <div class="q-feedback correct" id="q3-correct">✓ The rational answer. Most people refuse this bet — they feel the potential loss of $100 more acutely than the potential gain of $150. This is <strong>loss aversion</strong> at work. Losses hurt approximately twice as much as equivalent gains feel good.</div>
+              <div class="q-feedback wrong" id="q3-wrong">This is <strong>Loss Aversion</strong> — one of the most documented biases in all of economics. Losses hurt roughly twice as much as equivalent gains feel good, causing us to refuse bets with positive expected value. The rational answer is to take it.</div>
+              <button class="q-next-btn" id="q3-next" onclick="nextQ(4)">Next question →</button>
+            </div>
+
+            <div class="q-card" id="q4">
+              <div class="q-number">Question 4 of 5</div>
+              <div class="q-text">You receive a $2,000 tax refund. How are you likely to treat this money compared to your regular monthly salary?</div>
+              <div class="q-options">
+                <div class="q-option" onclick="answerQ(4, 'wrong', this)"><div class="q-opt-indicator"></div>Spend it more freely — it feels like a bonus or found money</div>
+                <div class="q-option" onclick="answerQ(4, 'correct', this)"><div class="q-opt-indicator"></div>Exactly the same — it's the same money regardless of source</div>
+                <div class="q-option" onclick="answerQ(4, 'wrong', this)"><div class="q-opt-indicator"></div>Save it more carefully — it feels harder to replace than a salary</div>
+              </div>
+              <div class="q-feedback correct" id="q4-correct">✓ Correct. All money is fungible — $2,000 is $2,000 regardless of how it arrived. Most people treat windfalls as "free money" and spend them far more freely than equivalent earned income, which is <strong>mental accounting</strong> in action.</div>
+              <div class="q-feedback wrong" id="q4-wrong">This is <strong>Mental Accounting</strong>. People spend "found" money far more freely than earned money, despite identical amounts. A tax refund is simply money that was always yours — yet it activates completely different spending psychology. Money is money.</div>
+              <button class="q-next-btn" id="q4-next" onclick="nextQ(5)">Next question →</button>
+            </div>
+
+            <div class="q-card" id="q5">
+              <div class="q-number">Question 5 of 5</div>
+              <div class="q-text">A new restaurant has opened. You see a long queue outside. You weren't planning to eat there, but you're curious. What do you think?</div>
+              <div class="q-options">
+                <div class="q-option" onclick="answerQ(5, 'wrong', this)"><div class="q-opt-indicator"></div>It must be excellent — so many people can't be wrong</div>
+                <div class="q-option" onclick="answerQ(5, 'correct', this)"><div class="q-opt-indicator"></div>The queue is interesting evidence but I'd want to know why before deciding</div>
+                <div class="q-option" onclick="answerQ(5, 'wrong', this)"><div class="q-opt-indicator"></div>I'd probably join the queue — missing something popular feels bad</div>
+              </div>
+              <div class="q-feedback correct" id="q5-correct">✓ Good critical thinking. The queue could mean the food is excellent — or that it's new and hype-driven, or they're slow, or it's cheap. <strong>Social proof</strong> is real and powerful but should be examined, not followed blindly.</div>
+              <div class="q-feedback wrong" id="q5-wrong">This is <strong>Social Proof</strong>. When uncertain, we look to what others are doing as evidence for the correct behaviour. A queue signals quality — but it could also signal newness, hype, or slow service. The crowd is not always right.</div>
+              <button class="q-next-btn" id="q5-next" onclick="showResult()">See your results →</button>
+            </div>
+
+          </div>
+
+          <div class="quiz-result" id="quizResult">
+            <div class="quiz-score" id="quizScore">0/5</div>
+            <div class="quiz-score-label">questions answered correctly</div>
+            <div class="quiz-message" id="quizMessage"></div>
+            <button class="quiz-restart" onclick="restartQuiz()">Try again</button>
+          </div>
+
+        </div>
+      </div>
+
+        <div class="ch-nav-footer">
+          <button class="ch-nav-btn" onclick="showPage('casestudies')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Case Studies
+          </button>
+          <div class="ch-nav-spacer"></div>
+          <button class="ch-nav-btn next" onclick="showPage('cheatsheet')">
+            Cheat Sheet
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+    </div>
+
+    <!-- CHEAT SHEET -->
+    <div id="page-cheatsheet" class="page">
+      <div class="ch-header" data-num="08">
+        <div class="ch-eyebrow">Chapter 08</div>
+        <div class="ch-title">The whole playbook. <strong>One page.</strong></div>
+        <div class="ch-subtitle">Your personal toolkit builder + quick reference cheat sheet. Save this. Come back to it.</div>
+        <div class="ch-meta">Quick reference</div>
+      </div>
+      <div class="content">
+
+        <!-- Colour Legend -->
+        <div style="display:flex;gap:0;margin-bottom:32px;border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;">
+          <div style="flex:1;padding:16px 20px;background:var(--teal-light);border-right:1px solid var(--rule);">
+            <div style="width:20px;height:3px;background:var(--teal);border-radius:2px;margin-bottom:8px;"></div>
+            <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--teal);margin-bottom:4px;">Insight</div>
+            <div style="font-size:12px;color:var(--text-soft);">What to know</div>
+          </div>
+          <div style="flex:1;padding:16px 20px;background:var(--gold-light);border-right:1px solid var(--rule);">
+            <div style="width:20px;height:3px;background:var(--gold);border-radius:2px;margin-bottom:8px;"></div>
+            <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">Action</div>
+            <div style="font-size:12px;color:var(--text-soft);">What to do</div>
+          </div>
+          <div style="flex:1;padding:16px 20px;background:var(--red-light);border-right:1px solid var(--rule);">
+            <div style="width:20px;height:3px;background:var(--red);border-radius:2px;margin-bottom:8px;"></div>
+            <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--red);margin-bottom:4px;">Caution</div>
+            <div style="font-size:12px;color:var(--text-soft);">What to avoid</div>
+          </div>
+          <div style="flex:1;padding:16px 20px;background:var(--violet-light);">
+            <div style="width:20px;height:3px;background:var(--violet);border-radius:2px;margin-bottom:8px;"></div>
+            <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--violet);margin-bottom:4px;">Evidence</div>
+            <div style="font-size:12px;color:var(--text-soft);">What was proven</div>
+          </div>
+        </div>
+
+        <!-- Personal Toolkit Builder -->
+        <div class="toolkit-builder">
+          <div class="tb-header">
+            <div class="tb-title">Build your personal toolkit</div>
+            <div class="tb-count" id="tbCount">0 selected</div>
+          </div>
+          <p style="font-size:13.5px;color:var(--text-soft);margin-bottom:20px;line-height:1.6">Tick the strategies you're committing to. Your selection is saved for this session.</p>
+          <div class="tb-items" id="tbItems">
+            <div class="tb-item" onclick="toggleTb(this)"><div class="tb-checkbox"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" class="tb-check"><path d="M20 6L9 17l-5-5"/></svg></div><div class="tb-item-text">Implementation intentions (if-then plans)</div></div>
+            <div class="tb-item" onclick="toggleTb(this)"><div class="tb-checkbox"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" class="tb-check"><path d="M20 6L9 17l-5-5"/></svg></div><div class="tb-item-text">10-10-10 rule for big decisions</div></div>
+            <div class="tb-item" onclick="toggleTb(this)"><div class="tb-checkbox"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" class="tb-check"><path d="M20 6L9 17l-5-5"/></svg></div><div class="tb-item-text">Decision journal — track &amp; review</div></div>
+            <div class="tb-item" onclick="toggleTb(this)"><div class="tb-checkbox"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" class="tb-check"><path d="M20 6L9 17l-5-5"/></svg></div><div class="tb-item-text">Commitment devices — lock in habits</div></div>
+            <div class="tb-item" onclick="toggleTb(this)"><div class="tb-checkbox"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" class="tb-check"><path d="M20 6L9 17l-5-5"/></svg></div><div class="tb-item-text">Consider the opposite — beat confirmation bias</div></div>
+            <div class="tb-item" onclick="toggleTb(this)"><div class="tb-checkbox"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" class="tb-check"><path d="M20 6L9 17l-5-5"/></svg></div><div class="tb-item-text">Reference class forecasting — use base rates</div></div>
+            <div class="tb-item" onclick="toggleTb(this)"><div class="tb-checkbox"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" class="tb-check"><path d="M20 6L9 17l-5-5"/></svg></div><div class="tb-item-text">Friction engineering — design the environment</div></div>
+            <div class="tb-item" onclick="toggleTb(this)"><div class="tb-checkbox"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" class="tb-check"><path d="M20 6L9 17l-5-5"/></svg></div><div class="tb-item-text">Premortem — imagine failure before you start</div></div>
+            <div class="tb-item" onclick="toggleTb(this)"><div class="tb-checkbox"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" class="tb-check"><path d="M20 6L9 17l-5-5"/></svg></div><div class="tb-item-text">48-hour cooling-off for purchases</div></div>
+            <div class="tb-item" onclick="toggleTb(this)"><div class="tb-checkbox"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" class="tb-check"><path d="M20 6L9 17l-5-5"/></svg></div><div class="tb-item-text">Audit your defaults quarterly</div></div>
+          </div>
+          <div class="tb-export">
+            <button class="tb-btn" onclick="printToolkit()">Print my toolkit</button>
+            <button class="tb-btn secondary" onclick="clearTb()">Clear all</button>
+          </div>
+        </div>
+
+        <!-- Cheat Grid -->
+        <div class="cheat-grid">
+          <div class="cheat-col">
+            <div class="cheat-col-title">Core Biases</div>
+            <div class="cheat-item"><div class="cheat-bullet teal"></div><div><strong>Anchoring</strong> — first number wins</div></div>
+            <div class="cheat-item"><div class="cheat-bullet teal"></div><div><strong>Framing</strong> — wording changes choices</div></div>
+            <div class="cheat-item"><div class="cheat-bullet teal"></div><div><strong>Loss aversion</strong> — losses hurt 2× more</div></div>
+            <div class="cheat-item"><div class="cheat-bullet teal"></div><div><strong>Sunk cost</strong> — past costs ≠ future value</div></div>
+            <div class="cheat-item"><div class="cheat-bullet teal"></div><div><strong>Endowment</strong> — we overvalue what we own</div></div>
+            <div class="cheat-item"><div class="cheat-bullet teal"></div><div><strong>Status quo</strong> — defaults dominate</div></div>
+            <div class="cheat-item"><div class="cheat-bullet teal"></div><div><strong>Present bias</strong> — now beats later</div></div>
+            <div class="cheat-item"><div class="cheat-bullet teal"></div><div><strong>Confirmation</strong> — we seek agreement</div></div>
+            <div class="cheat-item"><div class="cheat-bullet teal"></div><div><strong>Optimism</strong> — we think we'll beat the odds</div></div>
+            <div class="cheat-item"><div class="cheat-bullet teal"></div><div><strong>Availability</strong> — vivid = likely (wrong)</div></div>
+          </div>
+          <div class="cheat-col">
+            <div class="cheat-col-title" style="color:var(--violet);border-bottom-color:var(--violet-light)">Proven Principles</div>
+            <div class="cheat-item"><div class="cheat-bullet violet"></div><div>Default options drive most behaviour</div></div>
+            <div class="cheat-item"><div class="cheat-bullet violet"></div><div>Social norms beat financial incentives</div></div>
+            <div class="cheat-item"><div class="cheat-bullet violet"></div><div>Fewer choices = more decisions made</div></div>
+            <div class="cheat-item"><div class="cheat-bullet violet"></div><div>Commitment now → better action later</div></div>
+            <div class="cheat-item"><div class="cheat-bullet violet"></div><div>Friction kills behaviour (good or bad)</div></div>
+            <div class="cheat-item"><div class="cheat-bullet violet"></div><div>Fair &gt; rational in human decisions</div></div>
+            <div class="cheat-item"><div class="cheat-bullet violet"></div><div>System 1 decides; System 2 rationalises</div></div>
+            <div class="cheat-item"><div class="cheat-bullet violet"></div><div>Context shapes choice as much as values</div></div>
+            <div class="cheat-item"><div class="cheat-bullet violet"></div><div>Environment beats intention, every time</div></div>
+          </div>
+          <div class="cheat-col">
+            <div class="cheat-col-title" style="color:var(--gold);border-bottom-color:var(--gold-light)">Toolkit</div>
+            <div class="cheat-item"><div class="cheat-bullet gold"></div><div>Implementation intentions (if-then)</div></div>
+            <div class="cheat-item"><div class="cheat-bullet gold"></div><div>10-10-10 rule for big decisions</div></div>
+            <div class="cheat-item"><div class="cheat-bullet gold"></div><div>Decision journal — track and review</div></div>
+            <div class="cheat-item"><div class="cheat-bullet gold"></div><div>Commitment devices — lock in habits</div></div>
+            <div class="cheat-item"><div class="cheat-bullet gold"></div><div>Consider the opposite — beat confirmation</div></div>
+            <div class="cheat-item"><div class="cheat-bullet gold"></div><div>Reference class forecasting — base rates</div></div>
+            <div class="cheat-item"><div class="cheat-bullet gold"></div><div>Friction engineering — design environment</div></div>
+            <div class="cheat-item"><div class="cheat-bullet gold"></div><div>Premortem — imagine failure first</div></div>
+            <div class="cheat-item"><div class="cheat-bullet gold"></div><div>48-hour cooling-off for purchases</div></div>
+            <div class="cheat-item"><div class="cheat-bullet gold"></div><div>Audit your defaults quarterly</div></div>
+          </div>
+          <div class="cheat-col">
+            <div class="cheat-col-title" style="color:var(--red);border-bottom-color:var(--red-light)">Mistakes to Avoid</div>
+            <div class="cheat-item"><div class="cheat-bullet red"></div><div>Thinking you're immune to bias</div></div>
+            <div class="cheat-item"><div class="cheat-bullet red"></div><div>Holding losers because of what you paid</div></div>
+            <div class="cheat-item"><div class="cheat-bullet red"></div><div>Trusting overconfident forecasts</div></div>
+            <div class="cheat-item"><div class="cheat-bullet red"></div><div>Deciding right after consuming news</div></div>
+            <div class="cheat-item"><div class="cheat-bullet red"></div><div>Judging decisions by their outcomes</div></div>
+            <div class="cheat-item"><div class="cheat-bullet red"></div><div>Treating windfalls as "free money"</div></div>
+            <div class="cheat-item"><div class="cheat-bullet red"></div><div>Fighting biases with willpower alone</div></div>
+            <div class="cheat-item"><div class="cheat-bullet red"></div><div>Not designing your decision environment</div></div>
+          </div>
+        </div>
+
+        <!-- Three Principles -->
+        <div class="principles-block">
+          <div class="principle">
+            <div class="pr-num">First principle</div>
+            <div class="pr-name">Design, don't resist</div>
+            <div class="pr-body">Willpower is finite and unreliable. Build systems and environments that make good decisions the path of least resistance. The choice architecture matters more than the motivation to make a good choice.</div>
+          </div>
+          <div class="principle">
+            <div class="pr-num">Second principle</div>
+            <div class="pr-name">Slow down before big decisions</div>
+            <div class="pr-body">System 1 is fast and often wrong. System 2 is slow and more accurate. The single most powerful intervention for important choices is creating time between impulse and action. Time is free. Use it.</div>
+          </div>
+          <div class="principle">
+            <div class="pr-num">Third principle</div>
+            <div class="pr-name">Assume you're biased</div>
+            <div class="pr-body">Don't try to detect bias in yourself in the moment — it doesn't work. Use processes that are immune to your biases: journals, pre-mortems, devil's advocates. Systems beat self-awareness.</div>
+          </div>
+        </div>
+
+        <!-- Reading -->
+        <div class="reading-row">
+          <div class="reading-label">Further reading</div>
+          <div class="reading-books">
+            <div class="reading-book">Thinking, Fast and Slow — Kahneman</div>
+            <div class="reading-book">Nudge — Thaler &amp; Sunstein</div>
+            <div class="reading-book">Predictably Irrational — Ariely</div>
+            <div class="reading-book">The Undoing Project — Michael Lewis</div>
+            <div class="reading-book">Misbehaving — Richard Thaler</div>
+            <div class="reading-book">Influence — Robert Cialdini</div>
+          </div>
+        </div>
+
+      </div>
+
+        <div class="ch-nav-footer">
+          <button class="ch-nav-btn" onclick="showPage('quiz')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Self-Assessment
+          </button>
+          <div class="ch-nav-spacer"></div>
+          
+        </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <button class="m-btn active" onclick="showPage('cover')">Cover</button>
+    <button class="m-btn" onclick="showPage('intro')">00 Intro</button>
+    <button class="m-btn" onclick="showPage('biases')">01 Biases</button>
+    <button class="m-btn" onclick="showPage('experiments')">02 Experiments</button>
+    <button class="m-btn" onclick="showPage('applications')">03 Applications</button>
+    <button class="m-btn" onclick="showPage('mistakes')">04 Mistakes</button>
+    <button class="m-btn" onclick="showPage('toolkit')">05 Toolkit</button>
+    <button class="m-btn" onclick="showPage('casestudies')">06 Cases</button>
+    <button class="m-btn" onclick="showPage('quiz')">07 Quiz</button>
+    <button class="m-btn" onclick="showPage('cheatsheet')">08 Cheat Sheet</button>
+  </div>
+</nav>
+
+<script>
+// ── PAGE NAVIGATION ───────────────────────────────
+const pageOrder = ['cover','intro','biases','experiments','applications','mistakes','toolkit','casestudies','quiz','cheatsheet'];
+let currentPage = 'cover';
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.chapter-btn, .m-btn').forEach(b => b.classList.remove('active'));
+
+  document.getElementById('page-' + id).classList.add('active');
+
+  document.querySelectorAll('.chapter-btn').forEach(b => {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + id + "'")) {
+      b.classList.add('active');
+    }
+  });
+  document.querySelectorAll('.m-btn').forEach(b => {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + id + "'")) {
+      b.classList.add('active');
+    }
+  });
+
+  currentPage = id;
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const total = pageOrder.length - 1; // exclude cover
+  const idx = pageOrder.indexOf(currentPage);
+  const position = idx <= 0 ? 0 : idx;
+  const pct = Math.round((position / total) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = position === 0 ? '0 / ' + total + ' chapters' : position + ' / ' + total + ' chapters';
+}
+
+// ── BIAS CARDS ────────────────────────────────────
+function toggleBiasById(n) {
+  var detail = document.getElementById('bd-' + n);
+  var hint   = document.getElementById('bh-' + n);
+  var isOpen = detail.style.display === 'block';
+  detail.style.display = isOpen ? 'none' : 'block';
+  hint.innerHTML = isOpen
+    ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> See example'
+    : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg> Hide example';
+}
+
+// ── EXPERIMENTS ───────────────────────────────────
+function toggleExp(row) {
+  row.classList.toggle('open');
+}
+
+// ── MISTAKES ──────────────────────────────────────
+function toggleMistake(card) {
+  card.classList.toggle('open');
+}
+
+// ── APP TABS ──────────────────────────────────────
+function showAppTab(id, btn) {
+  document.querySelectorAll('.app-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.app-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('app-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── QUIZ ──────────────────────────────────────────
+let quizScore = 0;
+let quizAnswered = {};
+
+function answerQ(qNum, result, btn) {
+  if (quizAnswered[qNum]) return;
+  quizAnswered[qNum] = true;
+
+  const opts = btn.parentElement.querySelectorAll('.q-option');
+  opts.forEach(o => o.style.pointerEvents = 'none');
+
+  if (result === 'correct') {
+    btn.classList.add('selected-correct');
+    btn.querySelector('.q-opt-indicator').textContent = '✓';
+    quizScore++;
+    document.getElementById('q' + qNum + '-correct').style.display = 'block';
+  } else {
+    btn.classList.add('selected-wrong');
+    btn.querySelector('.q-opt-indicator').textContent = '✗';
+    document.getElementById('q' + qNum + '-wrong').style.display = 'block';
+    // Show correct answer
+    opts.forEach(o => {
+      if (o.getAttribute('onclick') && o.getAttribute('onclick').includes("'correct'")) {
+        o.classList.add('reveal-correct');
+      }
+    });
+  }
+
+  document.getElementById('q' + qNum + '-next').style.display = 'inline-block';
+}
+
+function nextQ(qNum) {
+  document.getElementById('q' + (qNum-1)).classList.remove('active');
+  if (qNum <= 5) {
+    document.getElementById('q' + qNum).classList.add('active');
+  }
+
+  // Update progress dots
+  const dots = document.querySelectorAll('.q-dot');
+  dots.forEach((d, i) => {
+    d.classList.remove('current', 'done');
+    if (i < qNum - 1) d.classList.add('done');
+    if (i === qNum - 1) d.classList.add('current');
+  });
+}
+
+function showResult() {
+  document.getElementById('q5').classList.remove('active');
+  const dots = document.querySelectorAll('.q-dot');
+  dots.forEach(d => d.classList.add('done'));
+
+  const messages = [
+    "Strong start — keep working through the playbook.",
+    "Not bad — a few biases slipped through.",
+    "Good — you're aware of the key traps.",
+    "Very good — you're thinking like a behavioural economist.",
+    "Excellent — you have a clear grasp of these principles."
+  ];
+
+  document.getElementById('quizScore').textContent = quizScore + '/5';
+  document.getElementById('quizMessage').textContent = messages[quizScore];
+  document.getElementById('quizResult').style.display = 'block';
+  document.getElementById('quizContent').style.display = 'none';
+}
+
+function restartQuiz() {
+  quizScore = 0;
+  quizAnswered = {};
+
+  document.getElementById('quizResult').style.display = 'none';
+  document.getElementById('quizContent').style.display = 'block';
+
+  document.querySelectorAll('.q-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('q1').classList.add('active');
+
+  document.querySelectorAll('.q-option').forEach(o => {
+    o.classList.remove('selected-correct', 'selected-wrong', 'reveal-correct');
+    o.style.pointerEvents = '';
+    o.querySelector('.q-opt-indicator').textContent = '';
+  });
+
+  document.querySelectorAll('.q-feedback').forEach(f => f.style.display = 'none');
+  document.querySelectorAll('.q-next-btn').forEach(b => b.style.display = 'none');
+
+  const dots = document.querySelectorAll('.q-dot');
+  dots.forEach((d, i) => {
+    d.classList.remove('done', 'current');
+    if (i === 0) d.classList.add('current');
+  });
+}
+
+// ── TOOLKIT BUILDER ───────────────────────────────
+function toggleTb(item) {
+  item.classList.toggle('checked');
+  updateTbCount();
+}
+
+function updateTbCount() {
+  const count = document.querySelectorAll('.tb-item.checked').length;
+  document.getElementById('tbCount').textContent = count + ' selected';
+}
+
+function clearTb() {
+  document.querySelectorAll('.tb-item').forEach(i => i.classList.remove('checked'));
+  updateTbCount();
+}
+
+function printToolkit() {
+  const selected = [...document.querySelectorAll('.tb-item.checked')].map(i => i.querySelector('.tb-item-text').textContent);
+  if (selected.length === 0) {
+    alert('Select at least one strategy first.');
+    return;
+  }
+  // Build modal items
+  const container = document.getElementById('tmItems');
+  container.innerHTML = selected.map((s, i) =>
+    '<div class="tm-item"><div class="tm-item-num">0' + (i+1) + '</div><div class="tm-item-text">' + s + '</div></div>'
+  ).join('');
+  document.getElementById('toolkitModal').classList.add('open');
+  document.getElementById('tmCopyBtn').textContent = 'Copy to clipboard';
+}
+
+function closeToolkitModal(e) {
+  if (e.target === document.getElementById('toolkitModal')) {
+    document.getElementById('toolkitModal').classList.remove('open');
+  }
+}
+
+function copyToolkit() {
+  const selected = [...document.querySelectorAll('.tb-item.checked')].map(i => i.querySelector('.tb-item-text').textContent);
+  const text = 'My light house Behavioural Economics Toolkit\n\n' + selected.map((s, i) => (i+1) + '. ' + s).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('tmCopyBtn');
+    btn.textContent = 'Copied ✓';
+    setTimeout(() => btn.textContent = 'Copy to clipboard', 2000);
+  });
+}
+
+// Init
+updateProgress();
+</script>
+
+
+<!-- TOOLKIT MODAL -->
+<div class="toolkit-modal-overlay" id="toolkitModal" onclick="closeToolkitModal(event)">
+  <div class="toolkit-modal">
+    <div class="toolkit-modal-header">
+      <div>
+        <div class="tm-logo">
+          <svg width="14" height="18" viewBox="0 0 70 90" fill="none">
+            <rect x="0" y="0" width="6" height="90" fill="#ffffff"/>
+            <rect x="22" y="0" width="48" height="90" fill="#ffffff"/>
+          </svg>
+          <div class="tm-wordmark">
+            <span>light</span> <span>house</span>
+          </div>
+        </div>
+        <div class="toolkit-modal-title">My <strong>Personal Toolkit</strong></div>
+      </div>
+      <button class="tm-close" onclick="document.getElementById('toolkitModal').classList.remove('open')">✕</button>
+    </div>
+    <div class="toolkit-modal-body">
+      <div class="tm-tag">Committed strategies</div>
+      <div class="tm-items" id="tmItems"></div>
+      <div class="tm-footer">
+        <button class="tm-print-btn" onclick="window.print()">Print / Save as PDF</button>
+        <button class="tm-copy-btn" id="tmCopyBtn" onclick="copyToolkit()">Copy to clipboard</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
