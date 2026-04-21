@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<!-- © 2025 light house. Ross Duncan. All rights reserved. Unauthorised reproduction prohibited. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Substack Playbook — light house</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;600;700&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --ink:         #18160f;
+  --ink-mid:     #2a2820;
+  --ink-soft:    #b8b4ac;
+  --stone-light: #9a9690;
+  --text-soft:   #5a5650;
+  --warm-white:  #f6f3ee;
+  --paper:       #edeae3;
+  --paper-deep:  #d5d0c8;
+  --teal:        #5db5a3;
+  --teal-light:  #e8f4f1;
+  --teal-mid:    #b8ddd8;
+  --gold:        #c8a96e;
+  --gold-light:  #f7f0e3;
+  --gold-mid:    #e2d0a8;
+  --red:         #b5453a;
+  --red-light:   #f7eae9;
+  --red-mid:     #e0b0ac;
+  --violet:      #6b5f94;
+  --violet-light:#f0eef7;
+  --violet-mid:  #c4bfe0;
+  --rule:        #d5d0c8;
+  --f-sans:      'Outfit', sans-serif;
+  --f-mono:      'DM Mono', monospace;
+  --radius:      4px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  background: var(--warm-white);
+  color: var(--ink);
+  font-family: var(--f-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+.shell { display: flex; min-height: 100vh; }
+
+/* ─── SIDEBAR ─────────────────────────── */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--ink);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-text { font-family: var(--f-sans); font-size: 14px; letter-spacing: 0.13em; color: rgba(255,255,255,0.85); font-weight: 200; }
+.logo-text strong { font-weight: 700; color: #fff; }
+.sidebar-chapters { flex: 1; padding: 20px 0; }
+.chapter-btn {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; background: none; border: none; cursor: pointer;
+  padding: 11px 24px; text-align: left; transition: background 0.15s;
+  border-left: 3px solid transparent;
+}
+.chapter-btn:hover { background: rgba(255,255,255,0.05); }
+.chapter-btn.active { background: rgba(255,255,255,0.07); border-left-color: var(--teal); }
+.ch-num { font-family: var(--f-mono); font-size: 10px; color: rgba(255,255,255,0.22); flex-shrink: 0; width: 20px; }
+.chapter-btn.active .ch-num { color: var(--teal); }
+.ch-label { font-family: var(--f-sans); font-size: 12.5px; font-weight: 400; color: rgba(255,255,255,0.38); line-height: 1.3; }
+.chapter-btn.active .ch-label { color: rgba(255,255,255,0.88); font-weight: 500; }
+.sidebar-progress { padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.07); }
+.progress-label { font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.2); margin-bottom: 10px; }
+.progress-bar { height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--teal); border-radius: 2px; transition: width 0.4s ease; }
+.progress-text { font-family: var(--f-mono); font-size: 9px; color: rgba(255,255,255,0.2); margin-top: 8px; letter-spacing: 0.1em; }
+
+/* ─── MAIN ────────────────────────────── */
+.main { flex: 1; min-width: 0; }
+.page { display: none !important; min-height: 100vh; }
+.page.active { display: block !important; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+/* ─── COVER ───────────────────────────── */
+#page-cover { background: var(--ink); }
+#page-cover.active { display: flex !important; flex-direction: column; }
+.cover-body {
+  flex: 1; min-height: 100vh; display: flex; flex-direction: column;
+  justify-content: center; padding: 72px 64px 56px; position: relative;
+}
+.cover-body::before {
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 40%; height: 100%;
+  background: linear-gradient(135deg, transparent 60%, rgba(93,181,163,0.04) 100%);
+  pointer-events: none;
+}
+.cover-tag {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--teal); margin-bottom: 28px;
+  display: flex; align-items: center; gap: 12px;
+}
+.cover-tag::before { content: ''; width: 28px; height: 1px; background: var(--teal); }
+.cover-title { font-family: var(--f-sans); font-size: clamp(48px, 7vw, 80px); font-weight: 200; line-height: 1.0; color: rgba(255,255,255,0.9); letter-spacing: 0.03em; margin-bottom: 8px; }
+.cover-title em { font-style: normal; font-weight: 700; color: var(--teal); display: block; }
+.cover-subtitle { font-family: var(--f-sans); font-size: 16px; font-weight: 300; color: rgba(255,255,255,0.45); margin-top: 28px; max-width: 480px; line-height: 1.7; }
+.cover-stats { display: flex; gap: 48px; margin-top: 64px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.08); }
+.c-stat-num { font-family: var(--f-sans); font-size: 36px; font-weight: 600; color: var(--teal); line-height: 1; }
+.c-stat-label { font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.2); margin-top: 6px; }
+.cover-start-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--teal); color: var(--ink); border: none; cursor: pointer;
+  font-family: var(--f-sans); font-size: 13px; font-weight: 700;
+  letter-spacing: 0.06em; padding: 14px 28px; border-radius: var(--radius);
+  margin-top: 40px; transition: all 0.2s;
+}
+.cover-start-btn:hover { background: var(--warm-white); transform: translateY(-1px); }
+
+/* LESS boxes on cover */
+.less-box {
+  width: 64px; height: 64px;
+  border: 1px solid rgba(93,181,163,0.3); border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  cursor: default; transition: all 0.25s ease; flex-direction: column;
+}
+.less-box:hover { border-color: var(--teal); background: rgba(93,181,163,0.08); }
+.less-box .lb-letter { font-family: var(--f-mono); font-size: 20px; font-weight: 400; letter-spacing: 0.12em; color: rgba(93,181,163,0.35); transition: all 0.25s; }
+.less-box:hover .lb-letter { display: none; }
+.less-box .lb-word { font-family: var(--f-mono); font-size: 8px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal); display: none; }
+.less-box:hover .lb-word { display: block; }
+
+/* ─── CHAPTER HEADER ──────────────────── */
+.ch-header {
+  padding: 56px 64px 48px; border-bottom: 1px solid var(--rule);
+  position: relative; overflow: hidden;
+}
+.ch-header::after {
+  content: attr(data-num); position: absolute; right: 40px; top: 50%;
+  transform: translateY(-50%); font-family: var(--f-sans); font-size: 160px;
+  font-weight: 700; color: rgba(0,0,0,0.035); line-height: 1;
+  pointer-events: none; user-select: none;
+}
+.ch-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--teal); margin-bottom: 20px;
+}
+.ch-eyebrow::before { content: ''; display: block; width: 20px; height: 2px; background: var(--teal); }
+.ch-title { font-family: var(--f-sans); font-size: clamp(32px, 4vw, 48px); font-weight: 200; line-height: 1.1; color: var(--ink); letter-spacing: -0.01em; }
+.ch-title strong { font-weight: 700; color: var(--teal); }
+.ch-subtitle { margin-top: 14px; font-size: 15px; font-weight: 400; color: var(--text-soft); max-width: 560px; line-height: 1.6; }
+.ch-meta { position: absolute; bottom: 24px; right: 64px; font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.12em; color: var(--rule); text-transform: uppercase; }
+
+/* ─── CONTENT ─────────────────────────── */
+.content { padding: 48px 64px 80px; }
+
+/* ─── SECTION DIVIDER ─────────────────── */
+.section-divider { display: flex; align-items: center; gap: 16px; margin: 36px 0 24px; }
+.sd-label { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-soft); flex-shrink: 0; }
+.sd-line { flex: 1; height: 1px; background: var(--rule); }
+
+/* ─── STEP CARDS ──────────────────────── */
+.step-grid { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border-radius: var(--radius); overflow: hidden; margin-bottom: 32px; }
+.step-card { background: var(--warm-white); padding: 32px 36px; display: grid; grid-template-columns: 48px 1fr; gap: 24px; align-items: start; }
+.step-card:nth-child(even) { background: var(--paper); }
+.step-num { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--teal); padding-top: 3px; }
+.step-title { font-size: 17px; font-weight: 600; color: var(--ink); line-height: 1.3; margin-bottom: 10px; }
+.step-body { font-size: 14px; font-weight: 300; color: var(--text-soft); line-height: 1.85; }
+.step-body strong { color: var(--ink); font-weight: 600; }
+.step-tip { margin-top: 14px; padding: 14px 16px; background: var(--teal-light); border-left: 3px solid var(--teal); border-radius: var(--radius); font-size: 13px; font-weight: 300; color: var(--text-soft); line-height: 1.7; }
+.step-warn { margin-top: 14px; padding: 14px 16px; background: var(--red-light); border-left: 3px solid var(--red); border-radius: var(--radius); font-size: 13px; font-weight: 300; color: var(--text-soft); line-height: 1.7; }
+
+/* ─── CHECKLIST ───────────────────────── */
+.checklist { display: flex; flex-direction: column; gap: 0; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--rule); margin-bottom: 32px; }
+.check-item { display: flex; align-items: flex-start; gap: 16px; padding: 18px 24px; background: var(--warm-white); border-bottom: 1px solid var(--rule); cursor: pointer; transition: background 0.15s; }
+.check-item:last-child { border-bottom: none; }
+.check-item:hover { background: var(--paper); }
+.check-item.done { background: var(--teal-light); }
+.check-box { width: 20px; height: 20px; border: 1.5px solid var(--rule); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.check-item.done .check-box { background: var(--teal); border-color: var(--teal); }
+.check-tick { display: none; }
+.check-item.done .check-tick { display: block; }
+.check-text { font-size: 14px; font-weight: 300; color: var(--text-soft); line-height: 1.6; }
+.check-item.done .check-text { color: var(--teal); text-decoration: line-through; opacity: 0.7; }
+
+/* ─── TWO-COL CARDS ───────────────────── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); border-radius: var(--radius); overflow: hidden; margin-bottom: 32px; }
+.col-card { padding: 36px 32px; }
+.col-card.warm { background: var(--warm-white); }
+.col-card.paper { background: var(--paper); }
+.col-card.ink { background: var(--ink); }
+.col-card.red-tint { background: var(--red-light); border-top: 3px solid var(--red); }
+.col-label { font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--teal); margin-bottom: 20px; }
+.col-label.red { color: var(--red); }
+.col-items { display: flex; flex-direction: column; gap: 10px; }
+.col-item { font-size: 14px; font-weight: 300; color: var(--text-soft); line-height: 1.7; padding-left: 14px; position: relative; }
+.col-item::before { content: '—'; position: absolute; left: 0; color: var(--rule); }
+.col-item.do::before { content: '✓'; color: var(--teal); }
+.col-item.dont::before { content: '✗'; color: var(--red); }
+.col-item strong { color: var(--ink); font-weight: 600; }
+
+/* ─── CADENCE GRID ────────────────────── */
+.cadence-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--rule); border-radius: var(--radius); overflow: hidden; margin-bottom: 32px; }
+.cadence-cell { background: var(--warm-white); padding: 28px 24px; }
+.cadence-cell.highlight { background: var(--paper); border-top: 3px solid var(--teal); }
+.cadence-freq { font-family: var(--f-sans); font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.cadence-cell.highlight .cadence-freq { color: var(--teal); }
+.cadence-rec { font-family: var(--f-mono); font-size: 8.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; display: none; }
+.cadence-cell.highlight .cadence-rec { display: block; }
+.cadence-body { font-size: 13px; font-weight: 300; color: var(--text-soft); line-height: 1.7; }
+
+/* ─── LESS HEADER (ink bleed) ──────────── */
+.less-header { background: var(--ink); padding: 48px 64px; border-bottom: 1px solid #2a2820; }
+.lh-tag { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--teal); margin-bottom: 12px; }
+.lh-title { font-size: clamp(28px, 3.5vw, 44px); font-weight: 200; color: rgba(255,255,255,0.88); line-height: 1.2; margin-bottom: 8px; }
+.lh-title strong { font-weight: 700; color: var(--teal); }
+.lh-sub { font-size: 14px; font-weight: 300; color: rgba(255,255,255,0.35); line-height: 1.75; max-width: 540px; }
+
+/* ─── NAV FOOTER ──────────────────────── */
+.ch-nav-footer { display: flex; align-items: center; padding: 28px 64px 40px; border-top: 1px solid var(--rule); gap: 16px; }
+.ch-nav-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: none; border: 1px solid var(--rule); color: var(--text-soft);
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em;
+  text-transform: uppercase; padding: 10px 18px; cursor: pointer;
+  border-radius: var(--radius); transition: all 0.15s;
+}
+.ch-nav-btn:hover { border-color: var(--teal); color: var(--teal); }
+.ch-nav-btn.next { background: var(--ink); border-color: var(--ink); color: var(--warm-white); margin-left: auto; }
+.ch-nav-btn.next:hover { background: var(--ink-mid); border-color: var(--ink-mid); }
+.ch-nav-spacer { flex: 1; }
+
+/* ─── MOBILE NAV ──────────────────────── */
+.mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink); border-top: 1px solid rgba(255,255,255,0.08); overflow-x: auto; scrollbar-width: none; z-index: 200; }
+.mobile-nav::-webkit-scrollbar { display: none; }
+.mobile-nav-inner { display: flex; padding: 0 12px; min-width: max-content; }
+.m-btn { background: none; border: none; cursor: pointer; padding: 14px 16px; font-family: var(--f-mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.3); white-space: nowrap; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.m-btn.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+@media (max-width: 860px) {
+  .sidebar { display: none; }
+  .mobile-nav { display: flex; }
+  .ch-header { padding: 40px 28px 32px; }
+  .content { padding: 32px 28px 100px; }
+  .two-col { grid-template-columns: 1fr; }
+  .cadence-grid { grid-template-columns: 1fr 1fr; }
+  .step-card { grid-template-columns: 36px 1fr; gap: 16px; }
+  .ch-nav-footer { padding: 24px 28px 40px; }
+}
+
+@media (max-width: 600px) {
+  .cover-body { padding: 48px 28px 40px; }
+  .cadence-grid { grid-template-columns: 1fr; }
+  .less-header { padding: 32px 28px; }
+}
+
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="18" height="22" viewBox="0 0 70 90" fill="none">
+        <rect x="0" y="0" width="6" height="90" fill="#ffffff"/>
+        <rect x="22" y="0" width="48" height="90" fill="#ffffff"/>
+      </svg>
+      <div class="logo-text"><span>light </span><strong>house</strong></div>
+    </div>
+    <nav class="sidebar-chapters">
+      <button class="chapter-btn active" onclick="showPage('cover')">
+        <span class="ch-num">—</span><span class="ch-label">Cover</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('ch00')">
+        <span class="ch-num">00</span><span class="ch-label">Before You Start</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('ch01')">
+        <span class="ch-num">01</span><span class="ch-label">Creating Your Account</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('ch02')">
+        <span class="ch-num">02</span><span class="ch-label">Configuring Your Publication</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('ch03')">
+        <span class="ch-num">03</span><span class="ch-label">Your First Post</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('ch04')">
+        <span class="ch-num">04</span><span class="ch-label">Growing Your Subscribers</span>
+      </button>
+      <button class="chapter-btn" onclick="showPage('ch05')">
+        <span class="ch-num">05</span><span class="ch-label">Dos &amp; Don'ts</span>
+      </button>
+    </nav>
+    <div class="sidebar-progress">
+      <div class="progress-label">Progress</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-text" id="progressText">0 / 6 chapters</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- COVER -->
+    <div id="page-cover" class="page active">
+      <div class="cover-body">
+        <div class="cover-tag">A light house publication</div>
+        <div class="cover-title">
+          The Substack<br>
+          <em>Playbook</em>
+        </div>
+        <div class="cover-subtitle">From account creation to your first subscribers. A practical guide for writers who want to build something real.</div>
+        <button class="cover-start-btn" onclick="showPage('ch00')">
+          Begin reading
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <div class="cover-stats">
+          <div class="c-stat">
+            <div class="c-stat-num">6</div>
+            <div class="c-stat-label">Chapters</div>
+          </div>
+          <div class="c-stat">
+            <div class="c-stat-num">30</div>
+            <div class="c-stat-label">Min read</div>
+          </div>
+          <div class="c-stat">
+            <div class="c-stat-num">∞</div>
+            <div class="c-stat-label">Potential reach</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:48px;">
+          <div class="less-box"><span class="lb-letter">L</span><span class="lb-word">Lighten</span></div>
+          <div class="less-box"><span class="lb-letter">E</span><span class="lb-word">Eliminate</span></div>
+          <div class="less-box"><span class="lb-letter">S</span><span class="lb-word">Simplify</span></div>
+          <div class="less-box"><span class="lb-letter">S</span><span class="lb-word">Sharpen</span></div>
+        </div>
+        <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.16em;color:rgba(255,255,255,0.2);margin-top:12px;line-height:1.8;">LESS — Lighten, Eliminate, Simplify, Sharpen.<br>The light house framework for organisational subtraction.</div>
+      </div>
+    </div>
+
+    <!-- CH 00 — BEFORE YOU START -->
+    <div id="page-ch00" class="page">
+      <div class="ch-header" data-num="00">
+        <div class="ch-eyebrow">Chapter 00</div>
+        <div class="ch-title">Before <strong>you start</strong></div>
+        <div class="ch-subtitle">The most common mistake is rushing to create an account before you know what you're writing, for whom, and why.</div>
+        <div class="ch-meta">Foundation</div>
+      </div>
+      <div class="content">
+
+        <div class="less-header" style="margin: 0 -64px 40px; padding: 40px 64px;">
+          <div class="lh-tag">The 30-minute investment</div>
+          <div class="lh-title">Spend time here. <strong>Save months of drift.</strong></div>
+          <div class="lh-sub">Spend 30 minutes on the questions in this chapter before you open Substack. Writers who skip this step spend the first six months of their newsletter trying to answer questions they should have answered before their first post.</div>
+        </div>
+
+        <div class="section-divider">
+          <span class="sd-label">Find your niche</span>
+          <div class="sd-line"></div>
+        </div>
+
+        <p style="font-size:15px;font-weight:300;color:var(--text-soft);line-height:1.85;margin-bottom:20px;">Substack rewards specificity. A newsletter about 'business and culture' competes with millions of blogs. A newsletter about 'the business of professional sport in Australia' serves a clear, searchable, recommendable audience.</p>
+
+        <div style="background:var(--paper);border-radius:var(--radius);padding:32px 36px;margin-bottom:32px;border-left:4px solid var(--teal);">
+          <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">Your niche test</div>
+          <p style="font-size:17px;font-weight:300;color:var(--ink);line-height:1.7;font-style:italic;">"I write [what] for [who] so they can [outcome]."</p>
+          <p style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.7;margin-top:12px;">If you can't complete that sentence cleanly, your niche isn't defined yet. Don't proceed until you can.</p>
+        </div>
+
+        <div class="section-divider">
+          <span class="sd-label">Your name decision</span>
+          <div class="sd-line"></div>
+        </div>
+
+        <div class="two-col" style="margin-bottom:32px;">
+          <div class="col-card warm">
+            <div class="col-label">Use your real name if...</div>
+            <div class="col-items">
+              <div class="col-item">You already have an audience elsewhere — social media, podcasting, journalism.</div>
+              <div class="col-item">You are the brand. People follow people.</div>
+              <div class="col-item">The newsletter is personal, opinionated, or voice-led.</div>
+            </div>
+          </div>
+          <div class="col-card paper">
+            <div class="col-label">Coin a publication title if...</div>
+            <div class="col-items">
+              <div class="col-item">The content is bigger than you — a curated digest or collaborative project.</div>
+              <div class="col-item">It's a topic-first brand you might eventually hand off or expand.</div>
+              <div class="col-item">Either way: short, easy to spell, easy to say aloud. No numbers or hyphens.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider">
+          <span class="sd-label">Choose your cadence</span>
+          <div class="sd-line"></div>
+        </div>
+
+        <p style="font-size:15px;font-weight:300;color:var(--text-soft);line-height:1.85;margin-bottom:24px;">Readers value consistency far more than frequency. A weekly newsletter delivered every Tuesday at 7am builds more trust than a 'whenever I feel like it' approach.</p>
+
+        <div class="cadence-grid">
+          <div class="cadence-cell">
+            <div class="cadence-freq">Daily</div>
+            <div class="cadence-body">Only if your content is genuinely short-form — a chart, a quote, a 200-word take.</div>
+          </div>
+          <div class="cadence-cell highlight">
+            <div class="cadence-freq">Weekly</div>
+            <div class="cadence-rec">Sweet spot</div>
+            <div class="cadence-body">The sweet spot for most writers. Consistent, sustainable, expected.</div>
+          </div>
+          <div class="cadence-cell">
+            <div class="cadence-freq">Fortnightly</div>
+            <div class="cadence-body">Perfectly fine, especially for long-form research or analysis.</div>
+          </div>
+          <div class="cadence-cell">
+            <div class="cadence-freq">Monthly</div>
+            <div class="cadence-body">Works for niche deep-dives, but subscriber retention is harder.</div>
+          </div>
+        </div>
+
+        <div class="section-divider">
+          <span class="sd-label">Prepare your assets</span>
+          <div class="sd-line"></div>
+        </div>
+
+        <p style="font-size:15px;font-weight:300;color:var(--text-soft);line-height:1.85;margin-bottom:20px;">Have these ready before you open Substack. Gathering them mid-setup creates friction and leads to rushed decisions.</p>
+
+        <div class="checklist" id="checklist-assets">
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"><svg class="check-tick" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="check-text"><strong>Profile photo</strong> — well-lit, clear, at least 400×400px. Not a blurry candid.</div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"><svg class="check-tick" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="check-text"><strong>Publication logo or wordmark</strong> — square format, readable at small sizes.</div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"><svg class="check-tick" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="check-text"><strong>One-paragraph 'about' blurb</strong> — ready to paste into your profile.</div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"><svg class="check-tick" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="check-text"><strong>First two or three post ideas</strong> — written down, so you know you have things to say.</div>
+          </div>
+          <div class="check-item" onclick="toggleCheck(this)">
+            <div class="check-box"><svg class="check-tick" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="check-text"><strong>Your niche sentence</strong> — completed and tested on someone who doesn't know you.</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('cover')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Cover
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('ch01')">
+          Creating Your Account<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- CH 01 — CREATING YOUR ACCOUNT -->
+    <div id="page-ch01" class="page">
+      <div class="ch-header" data-num="01">
+        <div class="ch-eyebrow">Chapter 01</div>
+        <div class="ch-title">Creating your <strong>account</strong></div>
+        <div class="ch-subtitle">The decisions you make during setup are harder to change than they appear. Make them deliberately.</div>
+        <div class="ch-meta">Setup</div>
+      </div>
+      <div class="content">
+
+        <div class="step-grid">
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <div>
+              <div class="step-title">Sign up</div>
+              <div class="step-body">Go to substack.com and click 'Start writing'. Register with an email address or via Google/Apple sign-in. <strong>Use a professional email address you intend to keep long-term</strong> — it appears in your email sends and is harder to change later than you might expect.</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <div>
+              <div class="step-title">Claim your subdomain — carefully</div>
+              <div class="step-body">Your Substack URL defaults to yourname.substack.com. This is the most important decision you make during setup.</div>
+              <div class="step-warn">It is very difficult to change later without breaking every link you have ever shared. It appears in every email your subscribers receive. Treat it exactly like registering a domain name — all lowercase, no spaces, something that still makes sense in five years.</div>
+              <div class="step-body" style="margin-top:12px;">You can later connect a custom domain via Settings → Publication → Custom domain, but your subdomain remains your permanent backend address.</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <div>
+              <div class="step-title">Verify your email</div>
+              <div class="step-body">Check your inbox immediately after signing up and click the verification link. <strong>Unverified accounts can experience deliverability problems</strong> — your posts may land in spam folders.</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">04</div>
+            <div>
+              <div class="step-title">Connect Stripe for payments</div>
+              <div class="step-body">Even if you have no plans to charge readers right now, connect your Stripe account via Settings → Payments. It takes five minutes.</div>
+              <div class="step-tip">Do this now. It means you can switch on paid subscriptions at any future moment without disrupting your readers or your workflow. Waiting until you're ready to charge creates unnecessary friction at exactly the wrong moment.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('ch00')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Before You Start
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('ch02')">
+          Configuring Your Publication<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- CH 02 — CONFIGURING YOUR PUBLICATION -->
+    <div id="page-ch02" class="page">
+      <div class="ch-header" data-num="02">
+        <div class="ch-eyebrow">Chapter 02</div>
+        <div class="ch-title">Configuring your <strong>publication</strong></div>
+        <div class="ch-subtitle">Most writers rush through setup. The writers who get this right spend the rest of their time compounding the advantage.</div>
+        <div class="ch-meta">Configuration</div>
+      </div>
+      <div class="content">
+
+        <div class="step-grid">
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <div>
+              <div class="step-title">Write a compelling description</div>
+              <div class="step-body">This appears as your SEO snippet, your Substack discovery listing, and the first line potential subscribers read. <strong>Two sentences maximum.</strong></div>
+              <div class="step-tip">Sentence 1: what you publish, specifically. Sentence 2: who it's for, or why it matters. Avoid 'insights', 'musings', 'thoughts on', or 'exploring'. Be concrete. 'Weekly analysis of the Australian property market for first-home buyers' is ten times more compelling than 'Insights on property and finance'.</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <div>
+              <div class="step-title">Upload your branding</div>
+              <div class="step-body">Go to Settings → Publication → Branding. Upload your logo (256×256px minimum, clear on both light and dark backgrounds) and cover image (1920×1080px recommended).</div>
+              <div class="step-warn">Avoid stock photography. Original or custom imagery signals authenticity and helps you stand out in Substack's discovery feed.</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <div>
+              <div class="step-title">Set up your About page</div>
+              <div class="step-body">Go to Posts → Pages → About. This is the page curious readers visit after discovering you. Answer four things:</div>
+              <div class="step-body" style="margin-top:12px;">
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <div style="display:flex;gap:12px;"><span style="color:var(--teal);font-weight:600;flex-shrink:0;">Who</span><span>Your name, relevant background, credibility markers.</span></div>
+                  <div style="display:flex;gap:12px;"><span style="color:var(--teal);font-weight:600;flex-shrink:0;">What</span><span>What you publish — specific, not vague.</span></div>
+                  <div style="display:flex;gap:12px;"><span style="color:var(--teal);font-weight:600;flex-shrink:0;">When</span><span>Your publishing cadence.</span></div>
+                  <div style="display:flex;gap:12px;"><span style="color:var(--teal);font-weight:600;flex-shrink:0;">Why</span><span>The promise you make to your readers.</span></div>
+                </div>
+              </div>
+              <div class="step-tip" style="margin-top:14px;">End with a clear call to action: 'Subscribe below to get every issue in your inbox.'</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">04</div>
+            <div>
+              <div class="step-title">Customise your welcome email</div>
+              <div class="step-body">Go to Settings → Email → Welcome email. This is statistically your <strong>highest-opened email — ever.</strong> New subscribers open it at rates of 60–80%, compared to 30–40% for regular posts.</div>
+              <div class="step-warn">Most writers leave the default 'Thanks for subscribing' template. Don't. Write it like a personal letter. Tell them you're glad they're here, exactly what they'll receive and when, and one thing they can do right now.</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">05</div>
+            <div>
+              <div class="step-title">Configure subscription tiers</div>
+              <div class="step-body">Under Settings → Payments, set up free and paid tiers even before you activate charging. Key decisions for Australian writers:</div>
+              <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
+                <div style="background:var(--paper);border-radius:var(--radius);padding:14px 16px;">
+                  <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Pricing (AUD)</div>
+                  <div style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.7;">A$8–15/month or A$80–120/year for standard paid tier. A$150–300/year for founding members. Substack takes 10% plus Stripe fees — around 13–16% of gross earnings total.</div>
+                </div>
+                <div style="background:var(--paper);border-radius:var(--radius);padding:14px 16px;">
+                  <div style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--teal);margin-bottom:6px;">Enable AUD pricing</div>
+                  <div style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.7;">Settings → Payments → turn on localised pricing. Australian readers see prices in AUD rather than USD. Substack supports AUD natively.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('ch01')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Creating Your Account
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('ch03')">
+          Your First Post<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- CH 03 — FIRST POST -->
+    <div id="page-ch03" class="page">
+      <div class="ch-header" data-num="03">
+        <div class="ch-eyebrow">Chapter 03</div>
+        <div class="ch-title">Writing your <strong>first post</strong></div>
+        <div class="ch-subtitle">Your first post is your launch. Treat it like one.</div>
+        <div class="ch-meta">Publishing</div>
+      </div>
+      <div class="content">
+
+        <div class="step-grid">
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <div>
+              <div class="step-title">Start with a welcome post</div>
+              <div class="step-body">Before writing substantive content, publish a short public welcome post — think of it as your 'hello world'. Keep it under 500 words. It doesn't need to be your best writing — it needs to be <strong>honest and specific</strong> about what you're building.</div>
+              <div class="step-tip">This post lives permanently on your homepage and in your archive. It is linked from your welcome email. It tells the story of why you're starting this newsletter.</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <div>
+              <div class="step-title">Learn the editor</div>
+              <div class="step-body">Substack's editor is deliberately minimal. Key features to know:</div>
+              <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
+                <div style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.6;padding-left:14px;border-left:2px solid var(--rule);"><strong style="color:var(--ink);">/</strong> — insert a divider, image, video embed, or paywall break</div>
+                <div style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.6;padding-left:14px;border-left:2px solid var(--rule);"><strong style="color:var(--ink);">Embeds</strong> — paste a Twitter/X, YouTube, or Spotify URL on its own line</div>
+                <div style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.6;padding-left:14px;border-left:2px solid var(--rule);"><strong style="color:var(--ink);">Paywall</strong> — marks where free readers stop and paid subscribers continue</div>
+                <div style="font-size:13.5px;font-weight:300;color:var(--text-soft);line-height:1.6;padding-left:14px;border-left:2px solid var(--rule);"><strong style="color:var(--ink);">Headings</strong> — render very large in email. Use bold body text instead for most subheadings.</div>
+              </div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <div>
+              <div class="step-title">Always preview before sending</div>
+              <div class="step-body">Use the 'Send test email' button before publishing any post that will send to subscribers. Check it on your phone.</div>
+              <div class="step-warn">Email clients strip certain formatting, render images at unexpected sizes, and may break layout. Catching this yourself costs nothing. Sending a broken post to your whole list costs trust.</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">04</div>
+            <div>
+              <div class="step-title">When to publish</div>
+              <div class="step-body">Research consistently shows that <strong>Tuesday through Thursday mornings</strong> (in your audience's local timezone) produce the highest open rates. Schedule posts via the dropdown next to the Publish button.</div>
+              <div class="step-tip">For your very first post: publish, then immediately share it manually on every relevant social channel. The first post is your launch — treat it like one.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('ch02')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Configuring Your Publication
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('ch04')">
+          Growing Your Subscribers<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- CH 04 — GROWING SUBSCRIBERS -->
+    <div id="page-ch04" class="page">
+      <div class="ch-header" data-num="04">
+        <div class="ch-eyebrow">Chapter 04</div>
+        <div class="ch-title">Growing your <strong>subscribers</strong></div>
+        <div class="ch-subtitle">Your existing subscribers are your best salespeople. Build from the inside out.</div>
+        <div class="ch-meta">Growth</div>
+      </div>
+      <div class="content">
+
+        <div class="step-grid">
+          <div class="step-card">
+            <div class="step-num">01</div>
+            <div>
+              <div class="step-title">Import existing contacts</div>
+              <div class="step-body">Go to Subscribers → Import. Upload a CSV of email addresses from a prior newsletter, blog mailing list, or LinkedIn connection export. These people already have a relationship with you — they convert at far higher rates than cold traffic.</div>
+              <div class="step-warn">Only import people who have genuinely opted in to hear from you. Importing random contacts will get you marked as spam and damage your deliverability — possibly permanently.</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">02</div>
+            <div>
+              <div class="step-title">Substack Recommendations — your biggest growth lever</div>
+              <div class="step-body">Recommendations (Settings → Recommendations) is currently the most powerful organic growth tool on the platform. When another writer recommends you, their subscribers see your publication suggested at the moment they subscribe.</div>
+              <div class="step-tip">Recommend other publications you genuinely read and respect. Reach out to the writers — many will recommend you back. Focus on adjacent niches whose audience overlaps with yours. A single recommendation from a publication with 10,000+ subscribers can bring hundreds of new readers.</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">03</div>
+            <div>
+              <div class="step-title">Substack Notes</div>
+              <div class="step-body">Notes is Substack's social feed, accessible in the app and on the web. It's discoverable within the Substack ecosystem and is currently under-used by most writers.</div>
+              <div class="step-tip">Post there 2–3 times a week — short observations, questions, excerpts, reactions. Restacks and comments drive algorithmic visibility inside Substack.</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">04</div>
+            <div>
+              <div class="step-title">The referral programme</div>
+              <div class="step-body">Enable it via Settings → Referrals. Reward subscribers who refer friends — with free months, bonus posts, or early access to something.</div>
+              <div class="step-tip">Your existing subscribers are your best salespeople, and a structured incentive dramatically increases how often they share.</div>
+            </div>
+          </div>
+          <div class="step-card">
+            <div class="step-num">05</div>
+            <div>
+              <div class="step-title">Cross-promotion and social</div>
+              <div class="step-body">Each time you publish, share it on at least one other platform where your potential audience lives. <strong>Consistently linking back to your Substack — not just once at launch</strong> — is how you build a pipeline of new readers over months, not days.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('ch03')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Your First Post
+        </button>
+        <div class="ch-nav-spacer"></div>
+        <button class="ch-nav-btn next" onclick="showPage('ch05')">
+          Dos &amp; Don'ts<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- CH 05 — DOS AND DONTS -->
+    <div id="page-ch05" class="page">
+      <div class="ch-header" data-num="05">
+        <div class="ch-eyebrow">Chapter 05</div>
+        <div class="ch-title">Dos &amp; <strong>Don'ts</strong></div>
+        <div class="ch-subtitle">The rules that separate writers who build something lasting from those who drift.</div>
+        <div class="ch-meta">Reference</div>
+      </div>
+      <div class="content">
+
+        <div class="two-col">
+          <div class="col-card warm">
+            <div class="col-label" style="color:var(--teal);">Do</div>
+            <div class="col-items">
+              <div class="col-item do">Publish on a consistent schedule — even a short post on time beats a brilliant post late.</div>
+              <div class="col-item do">Reply to every comment in your first few months. Community builds loyalty.</div>
+              <div class="col-item do">Make your welcome email personal and specific — it's your highest-opened send.</div>
+              <div class="col-item do">Put your best work in the free tier early on, to attract new readers.</div>
+              <div class="col-item do">Write subject lines like you're emailing a friend, not writing marketing copy.</div>
+              <div class="col-item do">Connect Stripe early, even before you plan to charge.</div>
+              <div class="col-item do">Claim your subdomain as carefully as you'd register a domain name.</div>
+              <div class="col-item do">Use Recommendations proactively — reach out to writers you respect.</div>
+              <div class="col-item do">Preview every post in your own inbox before sending.</div>
+            </div>
+          </div>
+          <div class="col-card red-tint">
+            <div class="col-label red">Avoid</div>
+            <div class="col-items">
+              <div class="col-item dont">Don't import contacts who never opted in — it will get you marked as spam.</div>
+              <div class="col-item dont">Don't paywall most of your content before you have an established free audience.</div>
+              <div class="col-item dont">Don't write for a vague general audience — niche down as hard as you can.</div>
+              <div class="col-item dont">Don't obsess over subscriber numbers in the first 90 days.</div>
+              <div class="col-item dont">Don't promise a publishing cadence you can't maintain during a busy week.</div>
+              <div class="col-item dont">Don't use a Gmail address as your main contact if you want to look professional.</div>
+              <div class="col-item dont">Don't go paid before you have at least a few hundred engaged free subscribers.</div>
+              <div class="col-item dont">Don't leave the default welcome email — customise it on day one.</div>
+              <div class="col-item dont">Don't skip the About page — it's where curious readers decide whether to subscribe.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="less-header" style="border-bottom:none;">
+        <div class="lh-tag">The only question that matters</div>
+        <div class="lh-title">Read your own work as if you've just <strong>discovered it via a search.</strong></div>
+        <div class="lh-sub">Know nothing about the author. Would you subscribe? That is the only question that matters at the start.</div>
+      </div>
+
+      <div style="background:var(--ink);padding:20px 48px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+        <p style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin:0;">© 2025 light house · Ross Duncan · All rights reserved · Unauthorised reproduction prohibited</p>
+      </div>
+
+      <div class="ch-nav-footer">
+        <button class="ch-nav-btn" onclick="showPage('ch04')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Growing Your Subscribers
+        </button>
+        <div class="ch-nav-spacer"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <button class="m-btn active" onclick="showPage('cover')">Cover</button>
+    <button class="m-btn" onclick="showPage('ch00')">00 Before</button>
+    <button class="m-btn" onclick="showPage('ch01')">01 Account</button>
+    <button class="m-btn" onclick="showPage('ch02')">02 Config</button>
+    <button class="m-btn" onclick="showPage('ch03')">03 First Post</button>
+    <button class="m-btn" onclick="showPage('ch04')">04 Growth</button>
+    <button class="m-btn" onclick="showPage('ch05')">05 Dos &amp; Don'ts</button>
+  </div>
+</nav>
+
+<script>
+const pageOrder = ['cover','ch00','ch01','ch02','ch03','ch04','ch05'];
+let currentPage = 'cover';
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.chapter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.m-btn').forEach(b => b.classList.remove('active'));
+
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+
+  document.querySelectorAll('[onclick="showPage(\'' + id + '\')"]').forEach(b => b.classList.add('active'));
+
+  currentPage = id;
+  window.scrollTo(0, 0);
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = pageOrder.length - 1;
+  const idx = pageOrder.indexOf(currentPage);
+  const position = idx <= 0 ? 0 : idx;
+  const pct = total > 0 ? (position / total) * 100 : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = position === 0 ? '0 / ' + total + ' chapters' : position + ' / ' + total + ' chapters';
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('done');
+}
+
+updateProgress();
+</script>
+</body>
+</html>
