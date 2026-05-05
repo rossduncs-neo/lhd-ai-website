@@ -1,1 +1,1 @@
-# lhd-ai-website
+# lighterhouse-website
